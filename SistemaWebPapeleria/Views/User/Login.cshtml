@@ -1,0 +1,52 @@
+﻿@model SistemaWebPapeleria.ViewModels.LoginVM;
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Iniciar Sesión</title>
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+        <style>
+            body {
+                min-height: 100vh;
+                background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: 'Segoe UI', sans-serif;
+            }
+            .card {
+                width: 420px;
+                /* max-width: auto; */
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 20px;
+                padding: 40px 35px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <form asp-controller="User" asp-action="Login" method="post" autocomplete="off">
+                <div class="mb-3">
+                    <label>Correo Electrónico</label>
+                    <input class="form-control" type="email" placeholder="Ingrese su correo" required asp-for="Email" />
+                </div>
+                <div class="mb-3">
+                    <label>Contraseña</label>
+                    <input class="form-control" type="password" placeholder="Ingrese su contraseña" required asp-for="Password" />
+                </div>
+                <div class="d-grid mb-3">
+                    <button class="btn btn-primary" type="submit">Iniciar Sesión</button>
+                </div>
+                @if (ViewData["Mensaje"] != null)
+                {
+                    <div class="alert alert-danger" role="alert">@ViewData["Mensaje"]
+                    </div>
+                }
+            </form>
+        </div>
+    </body>
+</html>
