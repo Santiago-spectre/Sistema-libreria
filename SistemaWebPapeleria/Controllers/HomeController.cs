@@ -1,25 +1,47 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SistemaWebPapeleria.Models;
+using SistemaWebPapeleria.Data;
+using SistemaWebPapeleria.ViewModels;
 using System.Diagnostics;
 
 namespace SistemaWebPapeleria.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        //conexion con la base de datos
+        private readonly AppDbContext _appDbContext;
+        public HomeController(AppDbContext appDbContext)
         {
-            return View();
+            _appDbContext = appDbContext;
         }
 
-        public IActionResult Privacy()
+        //Muestra el dashboard
+        [HttpGet]
+        public async Task<IActionResult> Index()
         {
-            return View();
-        }
+            var model = new DashboardVM
+            {
+                //Total de productos del sistema
+                TotalProducts = await _appDbContext.Products.CountAsync(),
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+                //total de ventas registradas
+                TotalSales = await _appDbContext.Sales.CountAsync(),
+
+                //Total de usuarios registrados
+                TotalUsers = await _appDbContext.Users.CountAsync(),
+
+                //suma del total de ventas del dia
+                TodaySales = await _appDbContext.Sales.Where(s => s.Date.Date == DateTime.Today).SumAsync(s => s.Total),
+
+                LastSales = await _appDbContext.Sales.Include(s => s.User).OrderByDescending(s => s.Date).Take(5).ToListAsync(),
+
+                // Rol y nombre del usuario logueado desde la sesion
+                UserRole = HttpContext.Session.GetString("UserRole"),
+                UserName = HttpContext.Session.GetString("UserName"),
+            };
+
+            return View(model);
         }
     }
 }

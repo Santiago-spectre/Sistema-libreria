@@ -35,7 +35,12 @@ namespace SistemaWebPapeleria.Controllers
                 return View();
             }
 
-            //Redirige al inicio si el login es correcto
+            //Guarda los datos del usuario en sesion
+            HttpContext.Session.SetString("UserId", usuario_encontrado.UserId.ToString());
+            HttpContext.Session.SetString("UserName", usuario_encontrado.Name + " " + usuario_encontrado.LastName);
+            HttpContext.Session.SetString("UserRole", usuario_encontrado.Role);
+
+            //redirige al inicio si el login es correcto
             return RedirectToAction("Index", "Home");
         }
     }
