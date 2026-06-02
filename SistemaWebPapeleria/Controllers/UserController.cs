@@ -27,7 +27,7 @@ namespace SistemaWebPapeleria.Controllers
         public async Task<IActionResult> Login(UserVM model)
         {
             // Busca el usuario (correo y contraseña)
-            User? usuario_encontrado = await _appDbContext.Users.Where(u => u.Email == model.Email && u.Password == model.Password).FirstOrDefaultAsync();
+            User? usuario_encontrado = await _appDbContext.Users.Include(u => u.Role).Where(u => u.Email == model.Email && u.Password == model.Password).FirstOrDefaultAsync();
 
             if (usuario_encontrado == null)
             {
@@ -38,7 +38,7 @@ namespace SistemaWebPapeleria.Controllers
             //Guarda los datos del usuario en sesion
             HttpContext.Session.SetString("UserId", usuario_encontrado.UserId.ToString());
             HttpContext.Session.SetString("UserName", usuario_encontrado.Name + " " + usuario_encontrado.LastName);
-            HttpContext.Session.SetString("UserRole", usuario_encontrado.Role);
+            HttpContext.Session.SetString("UserRole", usuario_encontrado.Role.RoleName);
 
             //redirige al inicio si el login es correcto
             return RedirectToAction("Index", "Home");

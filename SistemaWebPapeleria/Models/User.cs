@@ -15,9 +15,10 @@ namespace SistemaWebPapeleria.Models
         public string Email { get; set; }
         [Required]
         public string Password { get; set; }
-        [Required, MaxLength(20)]
-        public string Role { get; set; }            //rol
-        public bool Status { get; set; }            //estado 
+        [Required]
+        public bool Status { get; set; }                //estado 
+        public int RoleId { get; set; }             //rol
+        public Role Role { get; set; }
 
         //relacion: un usuario esta activo en el sistema
         public ICollection<Sale> Sales { get; set; }

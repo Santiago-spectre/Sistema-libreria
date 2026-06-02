@@ -16,9 +16,18 @@ namespace SistemaWebPapeleria.Data
         public DbSet<SaleDetail> SaleDetails { get; set; }
         public DbSet<CashClosing> CashClosings { get; set; }
         public DbSet<Receipt> Receipts { get; set; }
+        public DbSet<Role> Roles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
+            //1. Role -> User (1:M)
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Role)
+                .WithMany(r => r.Users)
+                .HasForeignKey(u => u.RoleId);
+
             // 1. Category -> Product (1:M)
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)
@@ -99,8 +108,10 @@ namespace SistemaWebPapeleria.Data
                 .Property(cc => cc.ClosingAmount)
                 .HasPrecision(10, 2);
 
-            base.OnModelCreating(modelBuilder);
-
+            modelBuilder.Entity<Role>().HasData(
+                new Role { RoleId = 1, RoleName = "Administrador" },
+                new Role { RoleId = 2, RoleName = "Vendedor" }
+                );
         }
     }
 }

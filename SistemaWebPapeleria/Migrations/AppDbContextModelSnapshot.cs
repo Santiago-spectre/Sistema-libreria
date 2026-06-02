@@ -170,6 +170,35 @@ namespace SistemaWebPapeleria.Migrations
                     b.ToTable("Receipts");
                 });
 
+            modelBuilder.Entity("SistemaWebPapeleria.Models.Role", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoleId"));
+
+                    b.Property<string>("RoleName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("RoleId");
+
+                    b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1,
+                            RoleName = "Administrador"
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            RoleName = "Vendedor"
+                        });
+                });
+
             modelBuilder.Entity("SistemaWebPapeleria.Models.Sale", b =>
                 {
                     b.Property<int>("SaleId")
@@ -304,15 +333,15 @@ namespace SistemaWebPapeleria.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
 
                     b.HasKey("UserId");
+
+                    b.HasIndex("RoleId");
 
                     b.ToTable("Users");
                 });
@@ -386,6 +415,17 @@ namespace SistemaWebPapeleria.Migrations
                     b.Navigation("Sale");
                 });
 
+            modelBuilder.Entity("SistemaWebPapeleria.Models.User", b =>
+                {
+                    b.HasOne("SistemaWebPapeleria.Models.Role", "Role")
+                        .WithMany("Users")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("SistemaWebPapeleria.Models.Category", b =>
                 {
                     b.Navigation("Products");
@@ -394,6 +434,11 @@ namespace SistemaWebPapeleria.Migrations
             modelBuilder.Entity("SistemaWebPapeleria.Models.Product", b =>
                 {
                     b.Navigation("SaleDetails");
+                });
+
+            modelBuilder.Entity("SistemaWebPapeleria.Models.Role", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("SistemaWebPapeleria.Models.Sale", b =>
