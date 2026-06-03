@@ -1,304 +1,127 @@
-﻿@{
-    Layout = null;
+﻿@model SistemaWebPapeleria.ViewModels.DashboardVM
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["Active"] = "Home";
 }
-@model SistemaWebPapeleria.ViewModels.DashboardVM
 
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Dashboard - Papeleria Sonia</title>
-        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-            body {
-                min-height: 100vh;
-                background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
-                font-family: 'Segoe UI', sans-serif;
-                display: flex;
-            }
-            .sidebar {
-                width: 250px;
-                min-height: 100vh;
-                background: rgba(255, 255, 255, 0.03);
-                border-right: 1px solid rgba(255, 255, 255, 0.07);
-                display: flex;
-                flex-direction: column;
-                padding: 25px 15px;
-                position: fixed;
-                top: 0;
-                left: 0;
-                bottom: 0;
-            }
-            .sidebar-logo {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 10px;
-                margin-bottom: 35px;
-            }
-            .sidebar-logo img {
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                object-fit: cover;
-            }
-            .sidebar-logo span {
-                color: #ffffff;
-                font-weight: 700;
-                font-size: 13px;
-                letter-spacing: 1.5px;
-                text-transform: uppercase;
-            }
-            .sidebar-menu {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                gap: 5px;
-            }
-            .menu-item {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                padding: 12px 15px;
-                border-radius: 10px;
-                color: rgba(255, 255, 255, 0.5);
-                text-decoration: none;
-                font-size: 14px;
-                transition: all 0.2s ease;
-            }
-            .menu-item:hover {
-                background: rgba(99, 102, 241, 0.1);
-                color: #ffffff;
-            }
-            .menu-item.active {
-                background: rgba(99, 102, 241, 0.2);
-                color: #ffffff;
-                border-left: 3px solid #6366f1;
-            }
-            .menu-item i {
-                font-size: 18px;
-            }
-            .sidebar-bottom {
-                border-top: 1px solid rgba(255, 255, 255, 0.07);
-                padding-top: 15px;
-                display: flex;
-                flex-direction: column;
-                gap: 5px;
-            }
-            .sidebar-profile {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 10px;
-                border-radius: 10px;
-            }
-            .sidebar-profile img {
-                width: 35px;
-                height: 35px;
-                border-radius: 50%;
-                object-fit: cover;
-            }
-            .sidebar-profile span {
-                color: #ffffff;
-                font-size: 13px;
-                font-weight: 600;
-            }
-            .logout-btn {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                padding: 12px 15px;
-                border-radius: 10px;
-                color: rgba(255, 255, 255, 0.5);
-                text-decoration: none;
-                font-size: 14px;
-                transition: all 0.2s ease;
-            }
-            .logout-btn:hover {
-                background: rgba(255, 80, 80, 0.1);
-                color: #ff5050;
-            }
-            .main-content {
-                margin-left: 250px;
-                flex: 1;
-                padding: 30px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="sidebar">
-            <div class="sidebar-logo">
-                <img src="~/images/logo1.jpg" alt="Logo" />
-                <div>
-                    <span>Papelería Sonia</span>
-                    <p style="color: #6366f1; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin: 0;">@Model.UserRole</p>
-                </div>
+<!-- TOPBAR -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <div>
+        <p style="color: rgba(255,255,255,0.4); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;" id="fechaHora"></p>
+        <h4 style="color: #ffffff; font-weight: 700; font-size: 24px;">Bienvenido, <span style="color: #6366f1;">@Model.UserName</span></h4>
+    </div>
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="position: relative;">
+            <i class="bi bi-bell-fill" style="color: rgba(255,255,255,0.5); font-size: 20px;"></i>
+            <span style="position: absolute; top: -5px; right: -5px; width: 8px; height: 8px; background: #6366f1; border-radius: 50%;"></span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 8px 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);">
+            <i class="bi bi-person-circle" style="color: #6366f1; font-size: 28px;"></i>
+            <span style="color: #ffffff; font-size: 13px; font-weight: 600;">@Model.UserName</span>
+        </div>
+    </div>
+</div>
+
+<!-- TARJETAS -->
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px;">
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <p style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Total Productos</p>
+                <h3 style="color: #ffffff; font-size: 28px; font-weight: 700;">@Model.TotalProducts</h3>
             </div>
-
-            <!--Barra lateral izquierda-->
-            <div class="sidebar-menu">
-                <a href="/Home/Index" class="menu-item active">
-                    <i class="bi bi-house-fill"></i> Dashboard
-                </a>
-                <a href="/Product/Index" class="menu-item">
-                    <i class="bi bi-box-seam-fill"></i> Productos
-                </a>
-                <a href="/Sale/Index" class="menu-item">
-                    <i class="bi bi-cart-fill"></i> Ventas
-                </a>
-                <a href="/Supplier/Index" class="menu-item">
-                    <i class="bi bi-truck"></i> Proveedores
-                </a>
-                <a href="/CashClosing/Index" class="menu-item">
-                    <i class="bi bi-cash-stack"></i> Cierre de Caja
-                </a>
-                <a href="/User/index" class="menu-item">
-                    <i class="bi bi-person-fill"></i> Usuarios
-                </a>
-                <a href="/Report/Index" class="menu-item">
-                    <i class="bi bi-bar-chart-fill"></i> Reportes
-                </a>
-                <a href="#" class="menu-item">
-                    <i class="bi bi-gear-fill"></i> Configuración
-                </a>
-            </div>
-
-            <div class="sidebar-bottom">
-                <div class="sidebar-profile">
-                    <i class="bi bi-person-circle" style="color: #6366f1; font-size: 32px;"></i>
-                    <span>@Model.UserName</span>
-                </div>
-                <a href="/User/Logout" class="logout-btn">
-                    <i class="bi bi-box-arrow-left"></i> Cerrar Sesión
-                </a>
+            <div style="background: rgba(99,102,241,0.15); padding: 12px; border-radius: 10px;">
+                <i class="bi bi-box-seam-fill" style="color: #6366f1; font-size: 22px;"></i>
             </div>
         </div>
+    </div>
 
-        <div class="main-content">
-            <!-- TOPBAR -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                <div>
-                    <p style="color: rgba(255,255,255,0.4); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;" id="fechaHora"></p>
-                    <h4 style="color: #ffffff; font-weight: 700; font-size: 24px;">Bienvenido, <span style="color: #6366f1;">@Model.UserName</span></h4>
-                </div>
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="position: relative;">
-                        <i class="bi bi-bell-fill" style="color: rgba(255,255,255,0.5); font-size: 20px;"></i>
-                        <span style="position: absolute; top: -5px; right: -5px; width: 8px; height: 8px; background: #6366f1; border-radius: 50%;"></span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 8px 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);">
-                        <i class="bi bi-person-circle" style="color: #6366f1; font-size: 28px;"></i>
-                        <span style="color: #ffffff; font-size: 13px; font-weight: 600;">@Model.UserName</span>
-                    </div>
-                </div>
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <p style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Total Ventas</p>
+                <h3 style="color: #ffffff; font-size: 28px; font-weight: 700;">@Model.TotalSales</h3>
             </div>
-            <!-- TARJETAS -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px;">
-    
-                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);box-shadow: 0 0 15px rgba(99, 102, 241, 0.1); border-radius: 15px; padding: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div>
-                            <p style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Total Productos</p>
-                            <h3 style="color: #ffffff; font-size: 28px; font-weight: 700;">@Model.TotalProducts</h3>
-                        </div>
-                        <div style="background: rgba(99,102,241,0.15); padding: 12px; border-radius: 10px;">
-                            <i class="bi bi-box-seam-fill" style="color: #6366f1; font-size: 22px;"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);box-shadow: 0 0 15px rgba(99, 102, 241, 0.1); border-radius: 15px; padding: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div>
-                            <p style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Total Ventas</p>
-                            <h3 style="color: #ffffff; font-size: 28px; font-weight: 700;">@Model.TotalSales</h3>
-                        </div>
-                        <div style="background: rgba(52,211,153,0.15); padding: 12px; border-radius: 10px;">
-                            <i class="bi bi-cart-fill" style="color: #34d399; font-size: 22px;"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);box-shadow: 0 0 15px rgba(99, 102, 241, 0.1); border-radius: 15px; padding: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div>
-                            <p style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Total Usuarios</p>
-                            <h3 style="color: #ffffff; font-size: 28px; font-weight: 700;">@Model.TotalUsers</h3>
-                        </div>
-                        <div style="background: rgba(251,191,36,0.15); padding: 12px; border-radius: 10px;">
-                            <i class="bi bi-person-fill" style="color: #fbbf24; font-size: 22px;"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);box-shadow: 0 0 15px rgba(99, 102, 241, 0.1); border-radius: 15px; padding: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div>
-                            <p style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Ventas del Día</p>
-                            <h3 style="color: #ffffff; font-size: 28px; font-weight: 700;">S/ @Model.TodaySales</h3>
-                        </div>
-                        <div style="background: rgba(248,113,113,0.15); padding: 12px; border-radius: 10px;">
-                            <i class="bi bi-currency-dollar" style="color: #f87171; font-size: 22px;"></i>
-                        </div>
-                    </div>
-                </div>
-
+            <div style="background: rgba(52,211,153,0.15); padding: 12px; border-radius: 10px;">
+                <i class="bi bi-cart-fill" style="color: #34d399; font-size: 22px;"></i>
             </div>
+        </div>
+    </div>
 
-            <!-- TABLA ULTIMAS VENTAS -->
-            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);box-shadow: 0 0 15px rgba(99, 102, 241, 0.1); border-radius: 15px; padding: 25px;">
-                <h5 style="color: #ffffff; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; font-size: 13px; margin-bottom: 20px;">
-                    <i class="bi bi-clock-history" style="color: #6366f1; margin-right: 8px;"></i> Últimas Ventas
-                </h5>
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.07);">
-                            <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">ID</th>
-                            <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Fecha</th>
-                            <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Vendedor</th>
-                            <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Método de Pago</th>
-                            <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Total</th>
-                            <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var venta in Model.LastSales)
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <p style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Total Usuarios</p>
+                <h3 style="color: #ffffff; font-size: 28px; font-weight: 700;">@Model.TotalUsers</h3>
+            </div>
+            <div style="background: rgba(251,191,36,0.15); padding: 12px; border-radius: 10px;">
+                <i class="bi bi-person-fill" style="color: #fbbf24; font-size: 22px;"></i>
+            </div>
+        </div>
+    </div>
+
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <p style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Ventas del Día</p>
+                <h3 style="color: #ffffff; font-size: 28px; font-weight: 700;">S/ @Model.TodaySales</h3>
+            </div>
+            <div style="background: rgba(248,113,113,0.15); padding: 12px; border-radius: 10px;">
+                <i class="bi bi-currency-dollar" style="color: #f87171; font-size: 22px;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TABLA ULTIMAS VENTAS -->
+<div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 25px;">
+    <h5 style="color: #ffffff; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; font-size: 13px; margin-bottom: 20px;">
+        <i class="bi bi-clock-history" style="color: #6366f1; margin-right: 8px;"></i> Últimas Ventas
+    </h5>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.07);">
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">ID</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Fecha</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Vendedor</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Método de Pago</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Total</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var venta in Model.LastSales)
+            {
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                    <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">#@venta.SaleId</td>
+                    <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@venta.Date.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td style="color: #ffffff; font-size: 13px; padding: 12px 15px;">@venta.User.Name @venta.User.LastName</td>
+                    <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@venta.PaymentMethod</td>
+                    <td style="color: #34d399; font-size: 13px; font-weight: 700; padding: 12px 15px;">S/ @venta.Total</td>
+                    <td style="padding: 12px 15px;">
+                        @if (venta.ReceiptIssued)
                         {
-                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                                <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">#@venta.SaleId</td>
-                                <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@venta.Date.ToString("dd/MM/yyyy HH:mm")</td>
-                                <td style="color: #ffffff; font-size: 13px; padding: 12px 15px;">@venta.User.Name @venta.User.LastName</td>
-                                <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@venta.PaymentMethod</td>
-                                <td style="color: #34d399; font-size: 13px; font-weight: 700; padding: 12px 15px;">S/ @venta.Total</td>
-                                <td style="padding: 12px 15px;">
-                                    @if (venta.ReceiptIssued)
-                                    {
-                                        <span style="background: rgba(52,211,153,0.15); color: #34d399; padding: 4px 10px; border-radius: 20px; font-size: 11px;">Con comprobante</span>
-                                    }
-                                    else
-                                    {
-                                        <span style="background: rgba(251,191,36,0.15); color: #fbbf24; padding: 4px 10px; border-radius: 20px; font-size: 11px;">Sin comprobante</span>
-                                    }
-                                </td>
-                            </tr>
+                            <span style="background: rgba(52,211,153,0.15); color: #34d399; padding: 4px 10px; border-radius: 20px; font-size: 11px;">Con comprobante</span>
                         }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <script>
-            function actualizarFecha() {
-                const ahora = new Date();
-                const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-                document.getElementById('fechaHora').textContent = ahora.toLocaleDateString('es-PE', opciones);
+                        else
+                        {
+                            <span style="background: rgba(251,191,36,0.15); color: #fbbf24; padding: 4px 10px; border-radius: 20px; font-size: 11px;">Sin comprobante</span>
+                        }
+                    </td>
+                </tr>
             }
-            actualizarFecha();
-            setInterval(actualizarFecha, 60000);
-        </script>
-    </body>
-</html>
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        function actualizarFecha() {
+            const ahora = new Date();
+            const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            document.getElementById('fechaHora').textContent = ahora.toLocaleDateString('es-PE', opciones);
+        }
+        actualizarFecha();
+        setInterval(actualizarFecha, 60000);
+    </script>
+}

@@ -1,520 +1,322 @@
-﻿@using Microsoft.AspNetCore.Http
-@inject IHttpContextAccessor HttpContextAccessor
-@model List<SistemaWebPapeleria.Models.Sale>
+﻿@model List<SistemaWebPapeleria.Models.Sale>
 @{
-    Layout = null;
+    ViewData["Title"] = "Ventas";
+    ViewData["Active"] = "Sale";
 }
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Ventas - Papeleria Sonia</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+@section Styles {
     <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
+        .btn-add {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            border: none;
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            padding: 10px 20px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: opacity 0.2s ease;
+            cursor: pointer;
+        }
 
-            body {
-                min-height: 100vh;
-                background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
-                font-family: 'Segoe UI', sans-serif;
-                display: flex;
-            }
-
-            .sidebar {
-                width: 250px;
-                min-height: 100vh;
-                background: rgba(255, 255, 255, 0.03);
-                border-right: 1px solid rgba(255, 255, 255, 0.07);
-                display: flex;
-                flex-direction: column;
-                padding: 25px 15px;
-                position: fixed;
-                top: 0;
-                left: 0;
-                bottom: 0;
-            }
-
-            .sidebar-logo {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 10px;
-                margin-bottom: 35px;
-            }
-
-                .sidebar-logo img {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 50%;
-                    object-fit: cover;
-                }
-
-                .sidebar-logo span {
-                    color: #ffffff;
-                    font-weight: 700;
-                    font-size: 13px;
-                    letter-spacing: 1.5px;
-                    text-transform: uppercase;
-                }
-
-            .sidebar-menu {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            .menu-item {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                padding: 12px 15px;
-                border-radius: 10px;
-                color: rgba(255, 255, 255, 0.5);
-                text-decoration: none;
-                font-size: 14px;
-                transition: all 0.2s ease;
-            }
-
-                .menu-item:hover {
-                    background: rgba(99, 102, 241, 0.1);
-                    color: #ffffff;
-                }
-
-                .menu-item.active {
-                    background: rgba(99, 102, 241, 0.2);
-                    color: #ffffff;
-                    border-left: 3px solid #6366f1;
-                }
-
-                .menu-item i {
-                    font-size: 18px;
-                }
-
-            .sidebar-bottom {
-                border-top: 1px solid rgba(255, 255, 255, 0.07);
-                padding-top: 15px;
-                display: flex;
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            .sidebar-profile {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 10px;
-                border-radius: 10px;
-            }
-
-                .sidebar-profile span {
-                    color: #ffffff;
-                    font-size: 13px;
-                    font-weight: 600;
-                }
-
-            .logout-btn {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                padding: 12px 15px;
-                border-radius: 10px;
-                color: rgba(255, 255, 255, 0.5);
-                text-decoration: none;
-                font-size: 14px;
-                transition: all 0.2s ease;
-            }
-
-                .logout-btn:hover {
-                    background: rgba(255, 80, 80, 0.1);
-                    color: #ff5050;
-                }
-
-            .main-content {
-                margin-left: 250px;
-                flex: 1;
-                padding: 30px;
-            }
-
-            .btn-add {
-                background: linear-gradient(135deg, #4f46e5, #6366f1);
-                border: none;
-                border-radius: 10px;
+            .btn-add:hover {
+                opacity: 0.85;
                 color: #ffffff;
-                font-size: 13px;
-                font-weight: 600;
-                letter-spacing: 1px;
-                padding: 10px 20px;
-                text-decoration: none;
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                transition: opacity 0.2s ease;
-                cursor: pointer;
-            }
-
-                .btn-add:hover {
-                    opacity: 0.85;
-                    color: #ffffff;
-                }
-
-            select option {
-                background: #1a1a2e;
-                color: #ffffff;
-            }
-
-            select {
-                appearance: none;
-                -webkit-appearance: none;
-                background-image: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.6591-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-                background-repeat: no-repeat;
-                background-position: right 15px center;
-                padding-right: 40px !important;
             }
     </style>
-</head>
-<body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-logo">
-            <img src="~/images/logo1.jpg" alt="Logo" />
-            <div>
-                <span>Papelería Sonia</span>
-                <p style="color: #6366f1; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin: 0;">@HttpContextAccessor.HttpContext.Session.GetString("UserRole")</p>
-            </div>
-        </div>
-        <div class="sidebar-menu">
-            <a href="/Home/Index" class="menu-item">
-                <i class="bi bi-house-fill"></i> Dashboard
-            </a>
-            <a href="/Product/Index" class="menu-item">
-                <i class="bi bi-box-seam-fill"></i> Productos
-            </a>
-            <a href="/Sale/Index" class="menu-item active">
-                <i class="bi bi-cart-fill"></i> Ventas
-            </a>
-            <a href="/Supplier/Index" class="menu-item">
-                <i class="bi bi-truck"></i> Proveedores
-            </a>
-            <a href="/CashClosing/Index" class="menu-item">
-                <i class="bi bi-cash-stack"></i> Cierre de Caja
-            </a>
-            <a href="/User/Index" class="menu-item">
-                <i class="bi bi-person-fill"></i> Usuarios
-            </a>
-            <a href="/Report/Index" class="menu-item">
-                <i class="bi bi-bar-chart-fill"></i> Reportes
-            </a>
-            <a href="/Config/Index" class="menu-item">
-                <i class="bi bi-gear-fill"></i> Configuración
-            </a>
-        </div>
-        <div class="sidebar-bottom">
-            <div class="sidebar-profile">
-                <i class="bi bi-person-circle" style="color: #6366f1; font-size: 32px;"></i>
-                <span>@HttpContextAccessor.HttpContext.Session.GetString("UserName")</span>
-            </div>
-            <a href="/User/Logout" class="logout-btn">
-                <i class="bi bi-box-arrow-left"></i> Cerrar Sesión
-            </a>
-        </div>
-    </div>
+}
 
-    <!-- Contenido Principal -->
-    <div class="main-content">
-        <!-- Topbar -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-            <div>
-                <p style="color: rgba(255, 255, 255, 0.4); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;">Registro de transacciones</p>
-                <h4 style="color: #ffffff; font-weight: 700; font-size: 24px;">Ventas</h4>
-            </div>
-            <button onclick="document.getElementById('modalVenta').style.display='flex'" class="btn-add">
-                <i class="bi bi-plus-lg"></i> Nueva Venta
+<!-- Topbar -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <div>
+        <p style="color: rgba(255, 255, 255, 0.4); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;">Registro de transacciones</p>
+        <h4 style="color: #ffffff; font-weight: 700; font-size: 24px;">Ventas</h4>
+    </div>
+    <button onclick="document.getElementById('modalVenta').style.display='flex'" class="btn-add">
+        <i class="bi bi-plus-lg"></i> Nueva Venta
+    </button>
+</div>
+
+<!-- Tabla de Ventas -->
+<div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 0 15px rgba(99, 102, 241, 0.1); border-radius: 15px; padding: 25px;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.07);">
+                <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">#</th>
+                <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Fecha</th>
+                <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Vendedor</th>
+                <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Total</th>
+                <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Método de Pago</th>
+                <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Comprobante</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Count == 0)
+            {
+                <tr>
+                    <td colspan="6" style="text-align: center; color: rgba(255,255,255,0.3); font-size: 14px; padding: 40px;">
+                        <i class="bi bi-cart-x" style="font-size: 32px; display: block; margin-bottom: 10px;"></i>
+                        No hay ventas registradas aún
+                    </td>
+                </tr>
+            }
+            @foreach (var sale in Model)
+            {
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+                    <td style="color: rgba(255,255,255,0.4); font-size: 13px; padding: 12px 15px;">#@sale.SaleId</td>
+                    <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@sale.Date.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td style="color: #ffffff; font-size: 13px; padding: 12px 15px;">@sale.User?.Name</td>
+                    <td style="color: #34d399; font-size: 13px; font-weight: 700; padding: 12px 15px;">S/ @sale.Total.ToString("0.00")</td>
+                    <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@sale.PaymentMethod</td>
+                    <td style="padding: 12px 15px;">
+                        @if (sale.ReceiptIssued)
+                        {
+                            <span style="background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 3px 10px; border-radius: 20px; font-size: 11px;">Emitido</span>
+                        }
+                        else
+                        {
+                            <span style="background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.3); padding: 3px 10px; border-radius: 20px; font-size: 11px;">Sin comprobante</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Nueva Venta -->
+<div id="modalVenta" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 35px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto;">
+
+        <!-- Cabecera -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h5 style="color: #ffffff; font-weight: 700; font-size: 18px; margin: 0;">Nueva Venta</h5>
+            <button onclick="cerrarModal()" style="background: none; border: none; color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer;">
+                <i class="bi bi-x-lg"></i>
             </button>
         </div>
 
-        <!-- Tabla de Ventas -->
-        <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 0 15px rgba(99, 102, 241, 0.1); border-radius: 15px; padding: 25px;">
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.07);">
-                        <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">#</th>
-                        <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Fecha</th>
-                        <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Vendedor</th>
-                        <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Total</th>
-                        <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Método de Pago</th>
-                        <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Comprobante</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.Count == 0)
-                    {
-                        <tr>
-                            <td colspan="6" style="text-align: center; color: rgba(255,255,255,0.3); font-size: 14px; padding: 40px;">
-                                <i class="bi bi-cart-x" style="font-size: 32px; display: block; margin-bottom: 10px;"></i>
-                                No hay ventas registradas aún
-                            </td>
-                        </tr>
-                    }
-                    @foreach (var sale in Model)
-                    {
-                        <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
-                            <td style="color: rgba(255,255,255,0.4); font-size: 13px; padding: 12px 15px;">#@sale.SaleId</td>
-                            <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@sale.Date.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td style="color: #ffffff; font-size: 13px; padding: 12px 15px;">@sale.User?.Name</td>
-                            <td style="color: #34d399; font-size: 13px; font-weight: 700; padding: 12px 15px;">S/ @sale.Total.ToString("0.00")</td>
-                            <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@sale.PaymentMethod</td>
-                            <td style="padding: 12px 15px;">
-                                @if (sale.ReceiptIssued)
-                                {
-                                    <span style="background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 3px 10px; border-radius: 20px; font-size: 11px;">Emitido</span>
-                                }
-                                else
-                                {
-                                    <span style="background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.3); padding: 3px 10px; border-radius: 20px; font-size: 11px;">Sin comprobante</span>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <!-- Buscador de Productos -->
+        <div style="margin-bottom: 18px;">
+            <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Buscar producto</label>
+            <input type="text" id="buscarProducto" placeholder="Nombre del producto..."
+                   oninput="filtrarProductos()"
+                   style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+            <div id="listaProductos" style="margin-top: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; display: none; max-height: 180px; overflow-y: auto;"></div>
         </div>
-    </div>
 
-    <!-- Modal Nueva Venta -->
-    <div id="modalVenta" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-        <div style="background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 35px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto;">
-
-            <!-- Cabecera -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                <h5 style="color: #ffffff; font-weight: 700; font-size: 18px; margin: 0;">Nueva Venta</h5>
-                <button onclick="cerrarModal()" style="background: none; border: none; color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer;">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-
-            <!-- Buscador de Productos -->
-            <div style="margin-bottom: 18px;">
-                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Buscar producto</label>
-                <input type="text" id="buscarProducto" placeholder="Nombre del producto..."
-                       oninput="filtrarProductos()"
-                       style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
-                <div id="listaProductos" style="margin-top: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; display: none; max-height: 180px; overflow-y: auto;"></div>
-            </div>
-
-            <!-- Carrito -->
-            <div style="margin-bottom: 18px;">
-                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Productos en la venta</label>
-                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; overflow: hidden;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.07);">
-                                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Producto</th>
-                                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: center;">Cantidad</th>
-                                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: right;">Precio Unit.</th>
-                                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: right;">Subtotal</th>
-                                <th style="padding: 10px 15px;"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="carritoBody">
-                            <tr id="carritoVacio">
-                                <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.3); font-size: 13px; padding: 25px;">
-                                    Agrega productos desde el buscador
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Método de pago y Descuento -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 18px;">
-                <div>
-                    <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Método de pago</label>
-                    <select id="metodoPago" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;">
-                        <option value="Efectivo">Efectivo</option>
-                        <option value="Yape">Yape</option>
-                        <option value="Plin">Plin</option>
-                        <option value="Tarjeta">Tarjeta</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Descuento (S/)</label>
-                    <input type="number" id="descuento" min="0" step="0.01" value="0" placeholder="0.00"
-                           oninput="actualizarTotal()"
-                           style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
-                </div>
-            </div>
-
-            <!-- Comprobante -->
-            <div style="margin-bottom: 18px;">
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="emitirComprobante" value="true"
-                           style="width: 18px; height: 18px; accent-color: #6366f1; cursor: pointer;" />
-                    <span style="color: rgba(255,255,255,0.8); font-size: 14px;">¿Emitir comprobante? <span style="color: rgba(255,255,255,0.4); font-size: 12px;">(boleta o factura)</span></span>
-                </label>
-            </div>
-
-            <!-- Total y Botón -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <button type="button" onclick="registrarVenta()"
-                        style="padding: 13px 25px; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; letter-spacing: 1px; cursor: pointer;">
-                    <i class="bi bi-check-lg"></i> Registrar Venta
-                </button>
-                <div style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2); border-radius: 10px; padding: 15px 25px; text-align: right;">
-                    <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin-bottom: 4px;">TOTAL</p>
-                    <p id="totalVenta" style="color: #ffffff; font-size: 24px; font-weight: 700; margin: 0;">S/ 0.00</p>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <script>
-            const productos = @Html.Raw(ViewBag.ProductosJson ?? "[]");
-            let carrito = [];
-
-            function cerrarModal() {
-                document.getElementById('modalVenta').style.display = 'none';
-                document.getElementById('buscarProducto').value = '';
-                document.getElementById('listaProductos').style.display = 'none';
-                document.getElementById('listaProductos').innerHTML = '';
-                carrito = [];
-                renderCarrito();
-            }
-
-            function filtrarProductos() {
-                const texto = document.getElementById('buscarProducto').value.toLowerCase();
-                const lista = document.getElementById('listaProductos');
-
-                if (texto.length < 1) {
-                    lista.style.display = 'none';
-                    return;
-                }
-
-                const resultados = productos.filter(p => p.name.toLowerCase().includes(texto) && p.isActive);
-
-                if (resultados.length === 0) {
-                    lista.innerHTML = '<div style="padding: 12px 16px; color: rgba(255,255,255,0.4); font-size: 13px;">No se encontraron productos</div>';
-                } else {
-                    lista.innerHTML = resultados.map(p => `
-                        <div onclick="agregarAlCarrito(${p.productId})"
-                             style="padding: 12px 16px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;"
-                             onmouseover="this.style.background='rgba(99,102,241,0.1)'"
-                             onmouseout="this.style.background='transparent'">
-                            <span style="color: #ffffff; font-size: 13px;">${p.name}</span>
-                            <span style="color: #34d399; font-size: 13px; font-weight: 700;">S/ ${p.salePrice.toFixed(2)}</span>
-                        </div>
-                    `).join('');
-                }
-
-                lista.style.display = 'block';
-            }
-
-            function agregarAlCarrito(id) {
-                const producto = productos.find(p => p.productId === id);
-                if (!producto) return;
-
-                const existente = carrito.find(c => c.productId === id);
-                if (existente) {
-                    existente.cantidad++;
-                } else {
-                    carrito.push({ ...producto, cantidad: 1 });
-                }
-
-                document.getElementById('buscarProducto').value = '';
-                document.getElementById('listaProductos').style.display = 'none';
-                renderCarrito();
-            }
-
-            function quitarDelCarrito(id) {
-                carrito = carrito.filter(c => c.productId !== id);
-                renderCarrito();
-            }
-
-            function cambiarCantidad(id, valor) {
-                const item = carrito.find(c => c.productId === id);
-                if (item) {
-                    item.cantidad = parseInt(valor) || 1;
-                    if (item.cantidad < 1) item.cantidad = 1;
-                }
-                actualizarTotal();
-            }
-
-            function renderCarrito() {
-                const tbody = document.getElementById('carritoBody');
-
-                if (carrito.length === 0) {
-                    tbody.innerHTML = `
+        <!-- Carrito -->
+        <div style="margin-bottom: 18px;">
+            <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Productos en la venta</label>
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.07);">
+                            <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Producto</th>
+                            <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: center;">Cantidad</th>
+                            <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: right;">Precio Unit.</th>
+                            <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: right;">Subtotal</th>
+                            <th style="padding: 10px 15px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="carritoBody">
                         <tr id="carritoVacio">
                             <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.3); font-size: 13px; padding: 25px;">
                                 Agrega productos desde el buscador
                             </td>
-                        </tr>`;
-                    actualizarTotal();
-                    return;
-                }
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-                tbody.innerHTML = carrito.map(item => `
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                        <td style="color: #ffffff; font-size: 13px; padding: 10px 15px;">${item.name}</td>
-                        <td style="padding: 10px 15px; text-align: center;">
-                            <input type="number" value="${item.cantidad}" min="1"
-                                   onchange="cambiarCantidad(${item.productId}, this.value)"
-                                   style="width: 60px; padding: 6px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #ffffff; font-size: 13px; text-align: center; outline: none;" />
-                        </td>
-                        <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 10px 15px; text-align: right;">S/ ${item.salePrice.toFixed(2)}</td>
-                        <td style="color: #34d399; font-size: 13px; font-weight: 700; padding: 10px 15px; text-align: right;">S/ ${(item.salePrice * item.cantidad).toFixed(2)}</td>
-                        <td style="padding: 10px 15px; text-align: center;">
-                            <button onclick="quitarDelCarrito(${item.productId})"
-                                    style="background: rgba(248,113,113,0.15); color: #f87171; border: none; border-radius: 8px; padding: 5px 10px; cursor: pointer;">
-                                <i class="bi bi-trash-fill"></i>
-                            </button>
-                        </td>
-                    </tr>
+        <!-- Método de pago y Descuento -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 18px;">
+            <div>
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Método de pago</label>
+                <select id="metodoPago" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;">
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="Yape">Yape</option>
+                    <option value="Plin">Plin</option>
+                    <option value="Tarjeta">Tarjeta</option>
+                </select>
+            </div>
+            <div>
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Descuento (S/)</label>
+                <input type="number" id="descuento" min="0" step="0.01" value="0" placeholder="0.00"
+                       oninput="actualizarTotal()"
+                       style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+            </div>
+        </div>
+
+        <!-- Comprobante -->
+        <div style="margin-bottom: 18px;">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="checkbox" id="emitirComprobante" value="true"
+                       style="width: 18px; height: 18px; accent-color: #6366f1; cursor: pointer;" />
+                <span style="color: rgba(255,255,255,0.8); font-size: 14px;">¿Emitir comprobante? <span style="color: rgba(255,255,255,0.4); font-size: 12px;">(boleta o factura)</span></span>
+            </label>
+        </div>
+
+        <!-- Total y Botón -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <button type="button" onclick="registrarVenta()"
+                    style="padding: 13px 25px; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; letter-spacing: 1px; cursor: pointer;">
+                <i class="bi bi-check-lg"></i> Registrar Venta
+            </button>
+            <div style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2); border-radius: 10px; padding: 15px 25px; text-align: right;">
+                <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin-bottom: 4px;">TOTAL</p>
+                <p id="totalVenta" style="color: #ffffff; font-size: 24px; font-weight: 700; margin: 0;">S/ 0.00</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const productos = @Html.Raw(ViewBag.ProductosJson ?? "[]");
+        let carrito = [];
+
+        function cerrarModal() {
+            document.getElementById('modalVenta').style.display = 'none';
+            document.getElementById('buscarProducto').value = '';
+            document.getElementById('listaProductos').style.display = 'none';
+            document.getElementById('listaProductos').innerHTML = '';
+            carrito = [];
+            renderCarrito();
+        }
+
+        function filtrarProductos() {
+            const texto = document.getElementById('buscarProducto').value.toLowerCase();
+            const lista = document.getElementById('listaProductos');
+
+            if (texto.length < 1) {
+                lista.style.display = 'none';
+                return;
+            }
+
+            const resultados = productos.filter(p => p.name.toLowerCase().includes(texto) && p.isActive);
+
+            if (resultados.length === 0) {
+                lista.innerHTML = '<div style="padding: 12px 16px; color: rgba(255,255,255,0.4); font-size: 13px;">No se encontraron productos</div>';
+            } else {
+                lista.innerHTML = resultados.map(p => `
+                    <div onclick="agregarAlCarrito(${p.productId})"
+                         style="padding: 12px 16px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;"
+                         onmouseover="this.style.background='rgba(99,102,241,0.1)'"
+                         onmouseout="this.style.background='transparent'">
+                        <span style="color: #ffffff; font-size: 13px;">${p.name}</span>
+                        <span style="color: #34d399; font-size: 13px; font-weight: 700;">S/ ${p.salePrice.toFixed(2)}</span>
+                    </div>
                 `).join('');
+            }
 
+            lista.style.display = 'block';
+        }
+
+        function agregarAlCarrito(id) {
+            const producto = productos.find(p => p.productId === id);
+            if (!producto) return;
+
+            const existente = carrito.find(c => c.productId === id);
+            if (existente) {
+                existente.cantidad++;
+            } else {
+                carrito.push({ ...producto, cantidad: 1 });
+            }
+
+            document.getElementById('buscarProducto').value = '';
+            document.getElementById('listaProductos').style.display = 'none';
+            renderCarrito();
+        }
+
+        function quitarDelCarrito(id) {
+            carrito = carrito.filter(c => c.productId !== id);
+            renderCarrito();
+        }
+
+        function cambiarCantidad(id, valor) {
+            const item = carrito.find(c => c.productId === id);
+            if (item) {
+                item.cantidad = parseInt(valor) || 1;
+                if (item.cantidad < 1) item.cantidad = 1;
+            }
+            actualizarTotal();
+        }
+
+        function renderCarrito() {
+            const tbody = document.getElementById('carritoBody');
+
+            if (carrito.length === 0) {
+                tbody.innerHTML = `
+                    <tr id="carritoVacio">
+                        <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.3); font-size: 13px; padding: 25px;">
+                            Agrega productos desde el buscador
+                        </td>
+                    </tr>`;
                 actualizarTotal();
+                return;
             }
 
-            function actualizarTotal() {
-                const subtotal = carrito.reduce((sum, item) => sum + (item.salePrice * item.cantidad), 0);
-                const descuento = parseFloat(document.getElementById('descuento').value) || 0;
-                const total = Math.max(0, subtotal - descuento);
-                document.getElementById('totalVenta').textContent = 'S/ ' + total.toFixed(2);
+            tbody.innerHTML = carrito.map(item => `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                    <td style="color: #ffffff; font-size: 13px; padding: 10px 15px;">${item.name}</td>
+                    <td style="padding: 10px 15px; text-align: center;">
+                        <input type="number" value="${item.cantidad}" min="1"
+                               onchange="cambiarCantidad(${item.productId}, this.value)"
+                               style="width: 60px; padding: 6px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #ffffff; font-size: 13px; text-align: center; outline: none;" />
+                    </td>
+                    <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 10px 15px; text-align: right;">S/ ${item.salePrice.toFixed(2)}</td>
+                    <td style="color: #34d399; font-size: 13px; font-weight: 700; padding: 10px 15px; text-align: right;">S/ ${(item.salePrice * item.cantidad).toFixed(2)}</td>
+                    <td style="padding: 10px 15px; text-align: center;">
+                        <button onclick="quitarDelCarrito(${item.productId})"
+                                style="background: rgba(248,113,113,0.15); color: #f87171; border: none; border-radius: 8px; padding: 5px 10px; cursor: pointer;">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            actualizarTotal();
+        }
+
+        function actualizarTotal() {
+            const subtotal = carrito.reduce((sum, item) => sum + (item.salePrice * item.cantidad), 0);
+            const descuento = parseFloat(document.getElementById('descuento').value) || 0;
+            const total = Math.max(0, subtotal - descuento);
+            document.getElementById('totalVenta').textContent = 'S/ ' + total.toFixed(2);
+        }
+
+        async function registrarVenta() {
+            if (carrito.length === 0) {
+                alert('Agrega al menos un producto a la venta.');
+                return;
             }
 
-            async function registrarVenta() {
-                if (carrito.length === 0) {
-                    alert('Agrega al menos un producto a la venta.');
-                    return;
-                }
+            const datos = {
+                paymentMethod: document.getElementById('metodoPago').value,
+                discount: parseFloat(document.getElementById('descuento').value) || 0,
+                receiptIssued: document.getElementById('emitirComprobante').checked,
+                items: carrito.map(c => ({ productId: c.productId, quantity: c.cantidad, unitPrice: c.salePrice }))
+            };
 
-                const datos = {
-                    paymentMethod: document.getElementById('metodoPago').value,
-                    discount: parseFloat(document.getElementById('descuento').value) || 0,
-                    receiptIssued: document.getElementById('emitirComprobante').checked,
-                    items: carrito.map(c => ({ productId: c.productId, quantity: c.cantidad, unitPrice: c.salePrice }))
-                };
+            const response = await fetch('/Sale/Create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            });
 
-                const response = await fetch('/Sale/Create', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(datos)
-                });
-
-                if (response.ok) {
-                    cerrarModal();
-                    location.reload();
-                } else {
-                    alert('Error al registrar la venta. Intenta de nuevo.');
-                }
+            if (response.ok) {
+                cerrarModal();
+                location.reload();
+            } else {
+                alert('Error al registrar la venta. Intenta de nuevo.');
             }
+        }
     </script>
-</body>
-</html>
+}
