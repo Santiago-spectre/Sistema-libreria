@@ -17,6 +17,7 @@ namespace SistemaWebPapeleria.Data
         public DbSet<CashClosing> CashClosings { get; set; }
         public DbSet<Receipt> Receipts { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -70,6 +71,12 @@ namespace SistemaWebPapeleria.Data
                 .HasOne(cc => cc.User)
                 .WithMany(u => u.CashClosings)
                 .HasForeignKey(cc => cc.UserId);
+
+            // 8 User -> Notification (1:M)
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.User)
+                .WithMany(u => u.Notifications)
+                .HasForeignKey(n => n.UserId);
 
             // Configuración de precisión para campos decimales
             modelBuilder.Entity<Product>()

@@ -6,174 +6,424 @@
 
 @section Styles {
     <style>
-        .btn-add {
-            background: linear-gradient(135deg, #4f46e5, #6366f1);
+        .pos-wrapper {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 190px);
+        }
+
+        /* ── IZQUIERDA ── */
+        .pos-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            overflow: hidden;
+        }
+
+        .pos-search input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+            .pos-search input::placeholder {
+                color: rgba(255,255,255,0.3);
+            }
+
+        .pos-grid {
+            flex: 1;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            padding-right: 4px;
+        }
+
+            .pos-grid::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            .pos-grid::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .pos-grid::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,0.1);
+                border-radius: 4px;
+            }
+
+        .product-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 16px 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            user-select: none;
+        }
+
+            .product-card:hover {
+                background: rgba(99,102,241,0.15);
+                border-color: rgba(99,102,241,0.4);
+                transform: translateY(-2px);
+            }
+
+            .product-card .pc-icon {
+                width: 40px;
+                height: 40px;
+                background: rgba(99,102,241,0.15);
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #818cf8;
+                font-size: 18px;
+            }
+
+            .product-card .pc-name {
+                color: #fff;
+                font-size: 13px;
+                font-weight: 600;
+                line-height: 1.3;
+                flex: 1;
+            }
+
+            .product-card .pc-price {
+                color: #34d399;
+                font-size: 14px;
+                font-weight: 700;
+            }
+
+            .product-card .pc-stock {
+                color: rgba(255,255,255,0.35);
+                font-size: 11px;
+            }
+
+        /* ── DERECHA ── */
+        .pos-right {
+            width: 450px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+        .pos-cart-header {
+            padding: 18px 20px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+
+            .pos-cart-header h6 {
+                color: rgba(255,255,255,0.5);
+                font-size: 11px;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                margin: 0;
+            }
+
+        .pos-cart-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+            .pos-cart-list::-webkit-scrollbar {
+                width: 3px;
+            }
+
+            .pos-cart-list::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,0.1);
+                border-radius: 4px;
+            }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .cart-item-name {
+            flex: 1;
+            color: #fff;
+            font-size: 13px;
+            line-height: 1.3;
+        }
+
+        .cart-item-qty {
+            width: 48px;
+            padding: 5px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 13px;
+            text-align: center;
+            outline: none;
+        }
+
+        .cart-item-price {
+            color: #34d399;
+            font-size: 13px;
+            font-weight: 700;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .cart-item-del {
+            background: rgba(248,113,113,0.12);
+            color: #f87171;
             border: none;
-            border-radius: 10px;
-            color: #ffffff;
+            border-radius: 7px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+            .cart-item-del:hover {
+                background: rgba(248,113,113,0.25);
+            }
+
+        .cart-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: rgba(255,255,255,0.25);
+            font-size: 13px;
+        }
+
+            .cart-empty i {
+                font-size: 30px;
+                display: block;
+                margin-bottom: 8px;
+            }
+
+        /* ── PANEL INFERIOR ── */
+        .pos-footer {
+            padding: 16px 18px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .pos-footer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pos-footer-label {
+            color: rgba(255,255,255,0.45);
+            font-size: 12px;
+        }
+
+        .pos-footer-value {
+            color: rgba(255,255,255,0.8);
             font-size: 13px;
             font-weight: 600;
-            letter-spacing: 1px;
-            padding: 10px 20px;
-            text-decoration: none;
-            display: inline-flex;
+        }
+
+        .pos-footer select, .pos-footer input[type=number] {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 13px;
+            padding: 6px 10px;
+            outline: none;
+            width: 100%;
+        }
+
+        .pos-footer label {
+            display: flex;
             align-items: center;
             gap: 8px;
-            transition: opacity 0.2s ease;
+            color: rgba(255,255,255,0.6);
+            font-size: 13px;
             cursor: pointer;
         }
 
-            .btn-add:hover {
-                opacity: 0.85;
-                color: #ffffff;
+        .igv-row {
+            border-top: 1px solid rgba(255,255,255,0.07);
+            padding-top: 10px;
+        }
+
+            .igv-row .pos-footer-label {
+                color: rgba(255,255,255,0.4);
+                font-size: 12px;
+            }
+
+            .igv-row .pos-footer-value {
+                color: rgba(255,255,255,0.6);
+                font-size: 13px;
+            }
+
+        .btn-pagar {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+            .btn-pagar:hover {
+                opacity: 0.88;
+            }
+
+            .btn-pagar:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
             }
     </style>
 }
 
-<!-- Topbar -->
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-    <div>
-        <p style="color: rgba(255, 255, 255, 0.4); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;">Registro de transacciones</p>
-        <h4 style="color: #ffffff; font-weight: 700; font-size: 24px;">Ventas</h4>
+<!-- TARJETAS -->
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px;">
+
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <p style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Ventas de Hoy</p>
+                <h3 style="color: #34d399; font-size: 28px; font-weight: 700;">@ViewBag.LowStock</h3>
+            </div>
+            <div style="background: rgba(52,211,153,0.15); padding: 12px; border-radius: 10px;">
+                <i class="bi bi-cart-check-fill" style="color: #fbbf24; font-size: 22px;"></i>
+            </div>
+        </div>
     </div>
-    <button onclick="document.getElementById('modalVenta').style.display='flex'" class="btn-add">
-        <i class="bi bi-plus-lg"></i> Nueva Venta
-    </button>
+
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <p style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Ventas Totales Mensuales</p>
+                <h3 style="color: #34d399; font-size: 28px; font-weight: 700;">@ViewBag.TotalProducts</h3>
+            </div>
+            <div style="background: rgba(52,211,153,0.15); padding: 12px; border-radius: 10px;">
+                <i class="bi bi-calendar-month" style="color: #34d399; font-size: 22px;"></i>
+            </div>
+        </div>
+    </div>
+
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <p style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Promedio de Ventas</p>
+                <h3 style="color: #34d399; font-size: 28px; font-weight: 700;">@ViewBag.OutOfStock</h3>
+            </div>
+            <div style="background: rgba(52,211,153,0.15); padding: 12px; border-radius: 10px;">
+                <i class="bi bi-graph-up" style="color: #f87171; font-size: 22px;"></i>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Tabla de Ventas -->
-<div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 0 15px rgba(99, 102, 241, 0.1); border-radius: 15px; padding: 25px;">
-    <table style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.07);">
-                <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">#</th>
-                <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Fecha</th>
-                <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Vendedor</th>
-                <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Total</th>
-                <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Método de Pago</th>
-                <th style="color: rgba(255, 255, 255, 0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Comprobante</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Model.Count == 0)
-            {
-                <tr>
-                    <td colspan="6" style="text-align: center; color: rgba(255,255,255,0.3); font-size: 14px; padding: 40px;">
-                        <i class="bi bi-cart-x" style="font-size: 32px; display: block; margin-bottom: 10px;"></i>
-                        No hay ventas registradas aún
-                    </td>
-                </tr>
-            }
-            @foreach (var sale in Model)
-            {
-                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
-                    <td style="color: rgba(255,255,255,0.4); font-size: 13px; padding: 12px 15px;">#@sale.SaleId</td>
-                    <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@sale.Date.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td style="color: #ffffff; font-size: 13px; padding: 12px 15px;">@sale.User?.Name</td>
-                    <td style="color: #34d399; font-size: 13px; font-weight: 700; padding: 12px 15px;">S/ @sale.Total.ToString("0.00")</td>
-                    <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@sale.PaymentMethod</td>
-                    <td style="padding: 12px 15px;">
-                        @if (sale.ReceiptIssued)
-                        {
-                            <span style="background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 3px 10px; border-radius: 20px; font-size: 11px;">Emitido</span>
-                        }
-                        else
-                        {
-                            <span style="background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.3); padding: 3px 10px; border-radius: 20px; font-size: 11px;">Sin comprobante</span>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
+<div class="pos-wrapper">
 
-<!-- Modal Nueva Venta -->
-<div id="modalVenta" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div style="background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 35px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto;">
+    <!-- ══ IZQUIERDA: Catálogo ══ -->
+    <div class="pos-left">
+        <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 0 15px rgba(99, 102, 241, 0.1); border-radius: 15px; padding: 20px; display: flex; flex-direction: column; gap: 14px; flex: 1; overflow: hidden;">
 
-        <!-- Cabecera -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-            <h5 style="color: #ffffff; font-weight: 700; font-size: 18px; margin: 0;">Nueva Venta</h5>
-            <button onclick="cerrarModal()" style="background: none; border: none; color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer;">
-                <i class="bi bi-x-lg"></i>
-            </button>
+            <!-- Buscador -->
+            <div class="pos-search">
+                <input type="text" id="buscarProducto" placeholder="🔍  Buscar producto..." oninput="filtrarProductos()" />
+            </div>
+
+            <!-- Grid de productos -->
+            <div class="pos-grid" id="posGrid"></div>
+
+            <!-- Paginación -->
+            <div id="paginacionPos" style="display: flex; justify-content: center; align-items: center; gap: 6px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.07); flex-wrap: wrap;"></div>
+        </div>
+    </div>
+
+    <!-- ══ DERECHA: Carrito + Pago ══ -->
+    <div class="pos-right">
+
+        <div class="pos-cart-header">
+            <h6><i class="bi bi-cart3" style="margin-right:6px;"></i>Venta actual</h6>
         </div>
 
-        <!-- Buscador de Productos -->
-        <div style="margin-bottom: 18px;">
-            <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Buscar producto</label>
-            <input type="text" id="buscarProducto" placeholder="Nombre del producto..."
-                   oninput="filtrarProductos()"
-                   style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
-            <div id="listaProductos" style="margin-top: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; display: none; max-height: 180px; overflow-y: auto;"></div>
-        </div>
-
-        <!-- Carrito -->
-        <div style="margin-bottom: 18px;">
-            <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Productos en la venta</label>
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; overflow: hidden;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.07);">
-                            <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Producto</th>
-                            <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: center;">Cantidad</th>
-                            <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: right;">Precio Unit.</th>
-                            <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: right;">Subtotal</th>
-                            <th style="padding: 10px 15px;"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="carritoBody">
-                        <tr id="carritoVacio">
-                            <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.3); font-size: 13px; padding: 25px;">
-                                Agrega productos desde el buscador
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+        <!-- Lista de productos seleccionados -->
+        <div class="pos-cart-list" id="cartList">
+            <div class="cart-empty" id="cartEmpty">
+                <i class="bi bi-bag-x"></i>
+                Selecciona productos del catálogo
             </div>
         </div>
 
-        <!-- Método de pago y Descuento -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 18px;">
-            <div>
-                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Método de pago</label>
-                <select id="metodoPago" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;">
-                    <option value="Efectivo">Efectivo</option>
-                    <option value="Yape">Yape</option>
-                    <option value="Plin">Plin</option>
-                    <option value="Tarjeta">Tarjeta</option>
-                </select>
-            </div>
-            <div>
-                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Descuento (S/)</label>
-                <input type="number" id="descuento" min="0" step="0.01" value="0" placeholder="0.00"
-                       oninput="actualizarTotal()"
-                       style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
-            </div>
-        </div>
+        <!-- Panel inferior -->
+        <div class="pos-footer">
 
-        <!-- Comprobante -->
-        <div style="margin-bottom: 18px;">
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                <input type="checkbox" id="emitirComprobante" value="true"
-                       style="width: 18px; height: 18px; accent-color: #6366f1; cursor: pointer;" />
-                <span style="color: rgba(255,255,255,0.8); font-size: 14px;">¿Emitir comprobante? <span style="color: rgba(255,255,255,0.4); font-size: 12px;">(boleta o factura)</span></span>
+            <!-- Método de pago -->
+            <div class="pos-footer-row">
+                <span class="pos-footer-label">Método de pago</span>
+            </div>
+            <select id="metodoPago">
+                <option value="Efectivo">Efectivo</option>
+                <option value="Yape">Yape</option>
+                <option value="Plin">Plin</option>
+                <option value="Tarjeta">Tarjeta</option>
+            </select>
+
+            <!-- Descuento -->
+            <div class="pos-footer-row" style="margin-top:4px;">
+                <span class="pos-footer-label">Descuento (S/)</span>
+            </div>
+            <input type="number" id="descuento" min="0" step="0.01" value="0" oninput="actualizarTotales()" />
+
+            <!-- Comprobante -->
+            <label>
+                <input type="checkbox" id="emitirComprobante" style="accent-color:#6366f1; width:16px; height:16px;" />
+                Emitir comprobante
             </label>
-        </div>
 
-        <!-- Total y Botón -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <button type="button" onclick="registrarVenta()"
-                    style="padding: 13px 25px; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; letter-spacing: 1px; cursor: pointer;">
-                <i class="bi bi-check-lg"></i> Registrar Venta
-            </button>
-            <div style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2); border-radius: 10px; padding: 15px 25px; text-align: right;">
-                <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin-bottom: 4px;">TOTAL</p>
-                <p id="totalVenta" style="color: #ffffff; font-size: 24px; font-weight: 700; margin: 0;">S/ 0.00</p>
+            <!-- Op. Gravada e IGV -->
+            <div class="igv-row">
+                <div class="pos-footer-row">
+                    <span class="pos-footer-label">OP. GRAVADA</span>
+                    <span class="pos-footer-value" id="opGravada">S/ 0.00</span>
+                </div>
+                <div class="pos-footer-row" style="margin-top:4px;">
+                    <span class="pos-footer-label">IGV (18%)</span>
+                    <span class="pos-footer-value" id="igvMonto">S/ 0.00</span>
+                </div>
             </div>
-        </div>
 
+            <!-- Botón PAGAR -->
+            <button class="btn-pagar" id="btnPagar" onclick="registrarVenta()" disabled>
+                <span>PAGAR</span>
+                <span id="totalVenta">S/ 0.00</span>
+            </button>
+
+        </div>
     </div>
 </div>
 
@@ -181,57 +431,95 @@
     <script>
         const productos = @Html.Raw(ViewBag.ProductosJson ?? "[]");
         let carrito = [];
+        const porPagina = 35;
+        let paginaActual = 1;
+        let productosFiltrados = productos.filter(p => p.isActive);
 
-        function cerrarModal() {
-            document.getElementById('modalVenta').style.display = 'none';
-            document.getElementById('buscarProducto').value = '';
-            document.getElementById('listaProductos').style.display = 'none';
-            document.getElementById('listaProductos').innerHTML = '';
-            carrito = [];
-            renderCarrito();
+        // ── Render inicial del grid ──
+        function renderGrid(lista) {
+            const grid = document.getElementById('posGrid');
+            if (lista.length === 0) {
+                grid.innerHTML = '<div style="color:rgba(255,255,255,0.3);font-size:13px;grid-column:1/-1;text-align:center;padding:40px 0;">No se encontraron productos</div>';
+                renderPaginacion(0);
+                return;
+            }
+            const inicio = (paginaActual - 1) * porPagina;
+            const fin = inicio + porPagina;
+            const pagina = lista.slice(inicio, fin);
+
+            grid.innerHTML = pagina.map(p => `
+                <div class="product-card" onclick="agregarAlCarrito(${p.productId})">
+                    <div class="pc-icon"><i class="bi bi-box-seam"></i></div>
+                    <div class="pc-name">${p.name}</div>
+                    <div class="pc-price">S/ ${p.salePrice.toFixed(2)}</div>
+                    <div class="pc-stock">${p.isService ? 'Servicio' : 'Stock: ' + p.stock}</div>
+                </div>
+            `).join('');
+
+            renderPaginacion(lista.length);
+        }
+
+        function renderPaginacion(total){
+            const totalPaginas = Math.ceil(total / porPagina);
+            const cont = document.getElementById('paginacionPos');
+            cont.innerHTML = '';
+            if (totalPaginas <= 1) return;
+
+            const btnStyle = 'background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #ffffff; padding: 5px 11px; font-size: 13px; cursor: pointer;';
+            const btnActiveStyle = 'background: rgba(99,102,241,0.4); border: 1px solid #6366f1; border-radius: 8px; color: #ffffff; padding: 5px 11px; font-size: 13px; cursor: pointer; font-weight: 700;';
+
+            // Anterior
+            const btnAnt = document.createElement('button');
+            btnAnt.innerHTML = '‹';
+            btnAnt.style.cssText = btnStyle;
+            btnAnt.disabled = paginaActual === 1;
+            btnAnt.onclick = () => { paginaActual--; renderGrid(productosFiltrados); };
+            cont.appendChild(btnAnt);
+
+            // numeros
+            for (let i = 1; i <= totalPaginas; i++) {
+                if (totalPaginas > 7 && i > 5 && i < totalPaginas) {
+                    if (i === 6) {
+                        const pts = document.createElement('span');
+                        pts.textContent = '...';
+                        pts.style.cssText = 'color: rgba(255,255,255,0.4); font-size: 13px; padding: 0 4px;';
+                        cont.appendChild(pts);
+                    }
+                    continue;
+                }
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.style.cssText = i === paginaActual ? btnActiveStyle : btnStyle;
+                btn.onclick = () => { paginaActual = i; renderGrid(productosFiltrados); };
+                cont.appendChild(btn);
+            }
+
+            // Siguiente
+            const btnSig = document.createElement('button');
+            btnSig.innerHTML = '›';
+            btnSig.style.cssText = btnStyle;
+            btnSig.disabled = paginaActual === totalPaginas;
+            btnSig.onclick = () => { paginaActual++; renderGrid(productosFiltrados); };
+            cont.appendChild(btnSig);
         }
 
         function filtrarProductos() {
             const texto = document.getElementById('buscarProducto').value.toLowerCase();
-            const lista = document.getElementById('listaProductos');
-
-            if (texto.length < 1) {
-                lista.style.display = 'none';
-                return;
-            }
-
-            const resultados = productos.filter(p => p.name.toLowerCase().includes(texto) && p.isActive);
-
-            if (resultados.length === 0) {
-                lista.innerHTML = '<div style="padding: 12px 16px; color: rgba(255,255,255,0.4); font-size: 13px;">No se encontraron productos</div>';
-            } else {
-                lista.innerHTML = resultados.map(p => `
-                    <div onclick="agregarAlCarrito(${p.productId})"
-                         style="padding: 12px 16px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;"
-                         onmouseover="this.style.background='rgba(99,102,241,0.1)'"
-                         onmouseout="this.style.background='transparent'">
-                        <span style="color: #ffffff; font-size: 13px;">${p.name}</span>
-                        <span style="color: #34d399; font-size: 13px; font-weight: 700;">S/ ${p.salePrice.toFixed(2)}</span>
-                    </div>
-                `).join('');
-            }
-
-            lista.style.display = 'block';
+            productosFiltrados = productos.filter(p => p.isActive && p.name.toLowerCase().includes(texto));
+            paginaActual = 1;
+            renderGrid(productosFiltrados);
         }
 
+        // ── Carrito ──
         function agregarAlCarrito(id) {
             const producto = productos.find(p => p.productId === id);
             if (!producto) return;
-
             const existente = carrito.find(c => c.productId === id);
             if (existente) {
                 existente.cantidad++;
             } else {
                 carrito.push({ ...producto, cantidad: 1 });
             }
-
-            document.getElementById('buscarProducto').value = '';
-            document.getElementById('listaProductos').style.display = 'none';
             renderCarrito();
         }
 
@@ -243,60 +531,54 @@
         function cambiarCantidad(id, valor) {
             const item = carrito.find(c => c.productId === id);
             if (item) {
-                item.cantidad = parseInt(valor) || 1;
-                if (item.cantidad < 1) item.cantidad = 1;
+                item.cantidad = Math.max(1, parseInt(valor) || 1);
             }
-            actualizarTotal();
+            actualizarTotales();
         }
 
         function renderCarrito() {
-            const tbody = document.getElementById('carritoBody');
+            const list = document.getElementById('cartList');
+            const empty = document.getElementById('cartEmpty');
 
             if (carrito.length === 0) {
-                tbody.innerHTML = `
-                    <tr id="carritoVacio">
-                        <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.3); font-size: 13px; padding: 25px;">
-                            Agrega productos desde el buscador
-                        </td>
-                    </tr>`;
-                actualizarTotal();
+                list.innerHTML = '<div class="cart-empty" id="cartEmpty"><i class="bi bi-bag-x"></i>Selecciona productos del catálogo</div>';
+                actualizarTotales();
                 return;
             }
 
-            tbody.innerHTML = carrito.map(item => `
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                    <td style="color: #ffffff; font-size: 13px; padding: 10px 15px;">${item.name}</td>
-                    <td style="padding: 10px 15px; text-align: center;">
-                        <input type="number" value="${item.cantidad}" min="1"
-                               onchange="cambiarCantidad(${item.productId}, this.value)"
-                               style="width: 60px; padding: 6px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #ffffff; font-size: 13px; text-align: center; outline: none;" />
-                    </td>
-                    <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 10px 15px; text-align: right;">S/ ${item.salePrice.toFixed(2)}</td>
-                    <td style="color: #34d399; font-size: 13px; font-weight: 700; padding: 10px 15px; text-align: right;">S/ ${(item.salePrice * item.cantidad).toFixed(2)}</td>
-                    <td style="padding: 10px 15px; text-align: center;">
-                        <button onclick="quitarDelCarrito(${item.productId})"
-                                style="background: rgba(248,113,113,0.15); color: #f87171; border: none; border-radius: 8px; padding: 5px 10px; cursor: pointer;">
-                            <i class="bi bi-trash-fill"></i>
-                        </button>
-                    </td>
-                </tr>
+            list.innerHTML = carrito.map(item => `
+                <div class="cart-item">
+                    <div class="cart-item-name">${item.name}</div>
+                    <input class="cart-item-qty" type="number" value="${item.cantidad}" min="1"
+                           onchange="cambiarCantidad(${item.productId}, this.value)" />
+                    <div class="cart-item-price">S/ ${(item.salePrice * item.cantidad).toFixed(2)}</div>
+                    <button class="cart-item-del" onclick="quitarDelCarrito(${item.productId})">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
+                </div>
             `).join('');
 
-            actualizarTotal();
+            actualizarTotales();
         }
 
-        function actualizarTotal() {
-            const subtotal = carrito.reduce((sum, item) => sum + (item.salePrice * item.cantidad), 0);
+        function actualizarTotales() {
+            const bruto = carrito.reduce((sum, i) => sum + (i.salePrice * i.cantidad), 0);
             const descuento = parseFloat(document.getElementById('descuento').value) || 0;
-            const total = Math.max(0, subtotal - descuento);
+            const total = Math.max(0, bruto - descuento);
+
+            // IGV incluido en el precio: opGravada = total / 1.18, igv = total - opGravada
+            const opGravada = total / 1.18;
+            const igv = total - opGravada;
+
+            document.getElementById('opGravada').textContent = 'S/ ' + opGravada.toFixed(2);
+            document.getElementById('igvMonto').textContent  = 'S/ ' + igv.toFixed(2);
             document.getElementById('totalVenta').textContent = 'S/ ' + total.toFixed(2);
+
+            document.getElementById('btnPagar').disabled = carrito.length === 0;
         }
 
         async function registrarVenta() {
-            if (carrito.length === 0) {
-                alert('Agrega al menos un producto a la venta.');
-                return;
-            }
+            if (carrito.length === 0) return;
 
             const datos = {
                 paymentMethod: document.getElementById('metodoPago').value,
@@ -312,11 +594,18 @@
             });
 
             if (response.ok) {
-                cerrarModal();
-                location.reload();
+                carrito = [];
+                renderCarrito();
+                document.getElementById('descuento').value = '0';
+                document.getElementById('emitirComprobante').checked = false;
+                actualizarTotales();
+                alert('✅ Venta registrada correctamente.');
             } else {
-                alert('Error al registrar la venta. Intenta de nuevo.');
+                alert('❌ Error al registrar la venta. Intenta de nuevo.');
             }
         }
+
+        // Cargar grid al iniciar
+        renderGrid(productos.filter(p => p.isActive));
     </script>
 }

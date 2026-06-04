@@ -90,6 +90,45 @@ namespace SistemaWebPapeleria.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("SistemaWebPapeleria.Models.Notification", b =>
+                {
+                    b.Property<int>("NotificationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("NotificationId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("SistemaWebPapeleria.Models.Product", b =>
                 {
                     b.Property<int>("ProductId")
@@ -357,6 +396,17 @@ namespace SistemaWebPapeleria.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SistemaWebPapeleria.Models.Notification", b =>
+                {
+                    b.HasOne("SistemaWebPapeleria.Models.User", "User")
+                        .WithMany("Notifications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SistemaWebPapeleria.Models.Product", b =>
                 {
                     b.HasOne("SistemaWebPapeleria.Models.Category", "Category")
@@ -457,6 +507,8 @@ namespace SistemaWebPapeleria.Migrations
             modelBuilder.Entity("SistemaWebPapeleria.Models.User", b =>
                 {
                     b.Navigation("CashClosings");
+
+                    b.Navigation("Notifications");
 
                     b.Navigation("Sales");
                 });

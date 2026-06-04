@@ -25,5 +25,8 @@ namespace SistemaWebPapeleria.Models
 
         //relacion: un usuario realiza muchos cierres de caja
         public ICollection<CashClosing> CashClosings { get; set; }
+
+        //relacion un usuario recibe muchas notificaciones
+        public ICollection<Notification> Notifications { get; set; }
     }
 }
