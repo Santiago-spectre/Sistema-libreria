@@ -1,6 +1,10 @@
-﻿@{
+﻿@model List<SistemaWebPapeleria.Models.CashClosing>
+@{
     ViewData["Title"] = "Cierre de Caja";
     ViewData["Active"] = "CashClosing";
+    var userRole = Context.Session.GetString("UserRole");
+    var userId = int.Parse(Context.Session.GetString("UserId") ?? "0");
+    var cajaAbierta = Model.FirstOrDefault(c => c.UserId == userId && c.ClosingAmount == 0 && c.TotalSales == 0);
 }
 
 <!-- TOPBAR -->
@@ -9,10 +13,114 @@
         <p style="color: rgba(255,255,255,0.4); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;">Gestión de caja</p>
         <h4 style="color: #ffffff; font-weight: 700; font-size: 24px;">Cierre de Caja</h4>
     </div>
+    @if (cajaAbierta == null)
+    {
+        <button onclick="document.getElementById('modalAbrir').style.display='flex'" style="background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 13px; font-weight: 600; letter-spacing: 1px; padding: 10px 20px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+            <i class="bi bi-cash-stack"></i> Abrir Caja
+        </button>
+    }
+    else
+    {
+        <span style="background: rgba(52,211,153,0.15); color: #34d399; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 600;">
+            <i class="bi bi-circle-fill" style="font-size: 8px; margin-right: 6px;"></i> Caja Abierta
+        </span>
+    }
 </div>
 
-<!-- CONTENIDO -->
-<div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 60px; text-align: center;">
-    <i class="bi bi-cash-stack" style="font-size: 48px; color: rgba(99,102,241,0.5); display: block; margin-bottom: 15px;"></i>
-    <p style="color: rgba(255,255,255,0.3); font-size: 15px;">Módulo en construcción</p>
+@if (TempData["Error"] != null)
+{
+    <div style="background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); border-radius: 10px; padding: 12px 18px; margin-bottom: 20px; color: #f87171; font-size: 13px;">
+        <i class="bi bi-exclamation-circle-fill" style="margin-right: 8px;"></i> @TempData["Error"]
+    </div>
+}
+
+<!-- TABLA -->
+<div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 25px;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.07);">
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Vendedor</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Apertura</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Monto Inicial</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Total Ventas</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Monto Final</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Estado</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var caja in Model)
+            {
+                var estaAbierta = caja.ClosingAmount == 0 && caja.TotalSales == 0;
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                    <td style="color: #ffffff; font-size: 13px; padding: 12px 15px;">@caja.User?.Name @caja.User?.LastName</td>
+                    <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@caja.Date.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td style="color: #34d399; font-size: 13px; font-weight: 700; padding: 12px 15px;">S/ @caja.InitialAmount.ToString("0.00")</td>
+                    <td style="color: #34d399; font-size: 13px; font-weight: 700; padding: 12px 15px;">S/ @caja.TotalSales.ToString("0.00")</td>
+                    <td style="color: #34d399; font-size: 13px; font-weight: 700; padding: 12px 15px;">S/ @caja.ClosingAmount.ToString("0.00")</td>
+                    <td style="padding: 12px 15px;">
+                        @if (estaAbierta)
+                        {
+                            <span style="background: rgba(52,211,153,0.15); color: #34d399; padding: 4px 10px; border-radius: 20px; font-size: 11px;">Abierta</span>
+                        }
+                        else
+                        {
+                            <span style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 4px 10px; border-radius: 20px; font-size: 11px;">Cerrada</span>
+                        }
+                    </td>
+                    <td style="padding: 12px 15px;">
+                        <div style="display: flex; gap: 8px;">
+                            @if (estaAbierta && (caja.UserId == userId || userRole == "Administrador"))
+                            {
+                                <form method="post" action="/CashClosing/Close/@caja.CashClosingId" style="margin: 0;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer;">
+                                        <i class="bi bi-lock-fill"></i> Cerrar
+                                    </button>
+                                </form>
+                            }
+                            @if (userRole == "Administrador")
+                            {
+                                <form method="post" action="/CashClosing/Delete/@caja.CashClosingId" style="margin: 0;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" onclick="return confirm('¿Seguro que quieres eliminar este registro?')" style="background: rgba(248,113,113,0.15); color: #f87171; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer;">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @if (!Model.Any())
+    {
+        <div style="text-align: center; padding: 50px 20px;">
+            <i class="bi bi-cash-stack" style="font-size: 40px; color: rgba(99,102,241,0.4); display: block; margin-bottom: 12px;"></i>
+            <p style="color: rgba(255,255,255,0.3); font-size: 14px;">No hay registros de caja</p>
+        </div>
+    }
+</div>
+
+<!-- MODAL ABRIR CAJA -->
+<div id="modalAbrir" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 35px; width: 100%; max-width: 400px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h5 style="color: #ffffff; font-weight: 700; font-size: 18px; margin: 0;">Abrir Caja</h5>
+            <button onclick="document.getElementById('modalAbrir').style.display='none'" style="background: none; border: none; color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer;">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <form method="post" action="/CashClosing/Open">
+            @Html.AntiForgeryToken()
+            <div style="margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Monto Inicial (S/)</label>
+                <input type="number" name="initialAmount" required step="0.01" min="0" placeholder="0.00" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+            </div>
+            <button type="submit" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; letter-spacing: 1px; cursor: pointer;">
+                <i class="bi bi-cash-stack"></i> Abrir Caja
+            </button>
+        </form>
+    </div>
 </div>

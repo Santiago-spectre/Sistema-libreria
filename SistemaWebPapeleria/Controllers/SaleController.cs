@@ -41,6 +41,19 @@ namespace SistemaWebPapeleria.Controllers
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
 
+            var hoy = DateTime.Today;
+            ViewBag.TodaySales = await _appDbContext.Sales
+                .Where(s => s.Date.Date == hoy)
+                .CountAsync();
+
+            ViewBag.TotalSales = await _appDbContext.Sales
+                .Where(s => s.Date.Month == hoy.Month && s.Date.Year == hoy.Year)
+                .CountAsync();
+
+            ViewBag.AverageSales = await _appDbContext.Sales
+                .Where(s => s.Date.Month == hoy.Month && s.Date.Year == hoy.Year)
+                .AverageAsync(s => (double?)s.Total) is double avg ? Math.Round(avg, 2) : 0;
+
             return View(sales);
         }
 

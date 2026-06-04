@@ -1,4 +1,5 @@
-﻿@{
+﻿@model List<SistemaWebPapeleria.Models.Supplier>
+@{
     ViewData["Title"] = "Proveedores";
     ViewData["Active"] = "Supplier";
 }
@@ -6,13 +7,131 @@
 <!-- TOPBAR -->
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
     <div>
-        <p style="color: rgba(255,255,255,0.4); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;">Gestion de Proveedores</p>
+        <p style="color: rgba(255,255,255,0.4); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;">Gestión de proveedores</p>
         <h4 style="color: #ffffff; font-weight: 700; font-size: 24px;">Proveedores</h4>
+    </div>
+    <button onclick="document.getElementById('modalAgregar').style.display='flex'" class="btn-add">
+        <i class="bi bi-plus-lg"></i> Agregar Proveedor
+    </button>
+</div>
+
+<!-- TABLA -->
+<div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 25px;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.07);">
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Nombre</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Teléfono</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Dirección</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Descripción</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Estado</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var supplier in Model)
+            {
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                    <td style="color: #ffffff; font-size: 13px; padding: 12px 15px;">@supplier.Name</td>
+                    <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@supplier.Phone</td>
+                    <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@supplier.Address</td>
+                    <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@supplier.Description</td>
+                    <td style="padding: 12px 15px;">
+                        @if (supplier.Status)
+                        {
+                            <span style="background: rgba(52,211,153,0.15); color: #34d399; padding: 4px 10px; border-radius: 20px; font-size: 11px;">Activo</span>
+                        }
+                        else
+                        {
+                            <span style="background: rgba(255,80,80,0.15); color: #ff5050; padding: 4px 10px; border-radius: 20px; font-size: 11px;">Inactivo</span>
+                        }
+                    </td>
+                    <td style="padding: 12px 15px;">
+                        <div style="display: flex; gap: 8px;">
+                            <form method="post" action="/Supplier/ToggleStatus/@supplier.SupplierId" style="margin: 0;">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" style="background: rgba(248,113,113,0.15); color: #f87171; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer;">
+                                    @if (supplier.Status)
+                                    {
+                                        <i class="bi bi-eye-slash-fill"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-eye-fill"></i>
+                                    }
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @if (!Model.Any())
+    {
+        <div style="text-align: center; padding: 50px 20px;">
+            <i class="bi bi-truck" style="font-size: 40px; color: rgba(99,102,241,0.4); display: block; margin-bottom: 12px;"></i>
+            <p style="color: rgba(255,255,255,0.3); font-size: 14px;">No hay proveedores registrados</p>
+        </div>
+    }
+</div>
+
+<!-- MODAL AGREGAR PROVEEDOR -->
+<div id="modalAgregar" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 35px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h5 style="color: #ffffff; font-weight: 700; font-size: 18px; margin: 0;">Agregar Proveedor</h5>
+            <button onclick="document.getElementById('modalAgregar').style.display='none'" style="background: none; border: none; color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer;">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <form method="post" action="/Supplier/Create">
+            @Html.AntiForgeryToken()
+            <div style="margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Nombre</label>
+                <input type="text" name="Name" required placeholder="Ej: Distribuidora ABC" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+            </div>
+            <div style="margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Teléfono</label>
+                <input type="text" name="Phone" placeholder="Ej: 987654321" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+            </div>
+            <div style="margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Dirección</label>
+                <input type="text" name="Address" placeholder="Ej: Av. Principal 123" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+            </div>
+            <div style="margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Descripción</label>
+                <textarea name="Description" rows="3" placeholder="Descripción del proveedor..." style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none; resize: none;"></textarea>
+            </div>
+            <button type="submit" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; letter-spacing: 1px; cursor: pointer; margin-top: 10px;">
+                <i class="bi bi-check-lg"></i> Guardar Proveedor
+            </button>
+        </form>
     </div>
 </div>
 
-<!-- CONTENIDO -->
-<div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 60px; text-align: center;">
-    <i class="bi bi-truck" style="font-size: 48px; color: rgba(99,102,241,0.5); display: block; margin-bottom: 15px;"></i>
-    <p style="color: rgba(255,255,255,0.3); font-size: 15px;">Módulo en construcción</p>
-</div>
+@section Styles {
+    <style>
+        .btn-add {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            border: none;
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            padding: 10px 20px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: opacity 0.2s ease;
+            cursor: pointer;
+        }
+
+            .btn-add:hover {
+                opacity: 0.85;
+                color: #ffffff;
+            }
+    </style>
+}

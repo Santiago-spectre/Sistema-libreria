@@ -1,18 +1,202 @@
-﻿@{
+﻿@model List<SistemaWebPapeleria.Models.User>
+@{
     ViewData["Title"] = "Usuarios";
     ViewData["Active"] = "User";
+    var userRole = Context.Session.GetString("UserRole");
 }
 
 <!-- TOPBAR -->
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
     <div>
-        <p style="color: rgba(255,255,255,0.4); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;">Gestion de Usuarios</p>
+        <p style="color: rgba(255,255,255,0.4); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;">Gestión de usuarios</p>
         <h4 style="color: #ffffff; font-weight: 700; font-size: 24px;">Usuarios</h4>
+    </div>
+    @if (userRole == "Administrador")
+    {
+        <button onclick="document.getElementById('modalAgregar').style.display='flex'" style="background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 13px; font-weight: 600; letter-spacing: 1px; padding: 10px 20px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+            <i class="bi bi-plus-lg"></i> Agregar Usuario
+        </button>
+    }
+</div>
+
+<!-- TABLA -->
+<div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 25px;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.07);">
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Nombre</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Email</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Rol</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Estado</th>
+                @if (userRole == "Administrador")
+                {
+                    <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Acciones</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                    <td style="color: #ffffff; font-size: 13px; padding: 12px 15px;">@user.Name @user.LastName</td>
+                    <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@user.Email</td>
+                    <td style="padding: 12px 15px;">
+                        <span style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 4px 10px; border-radius: 20px; font-size: 11px;">@user.Role?.RoleName</span>
+                    </td>
+                    <td style="padding: 12px 15px;">
+                        @if (user.Status)
+                        {
+                            <span style="background: rgba(52,211,153,0.15); color: #34d399; padding: 4px 10px; border-radius: 20px; font-size: 11px;">Activo</span>
+                        }
+                        else
+                        {
+                            <span style="background: rgba(255,80,80,0.15); color: #ff5050; padding: 4px 10px; border-radius: 20px; font-size: 11px;">Inactivo</span>
+                        }
+                    </td>
+                    @if (userRole == "Administrador")
+                    {
+                        <td style="padding: 12px 15px;">
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="abrirEditar(@user.UserId, '@user.Name', '@user.LastName', '@user.Email', @user.RoleId)" style="background: rgba(99,102,241,0.15); color: #6366f1; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer;">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
+                                <form method="post" action="/User/ToggleStatus/@user.UserId" style="margin: 0;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" style="background: rgba(251,191,36,0.15); color: #fbbf24; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer;">
+                                        @if (user.Status)
+                                        {
+                                            <i class="bi bi-eye-slash-fill"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-eye-fill"></i>
+                                        }
+                                    </button>
+                                </form>
+                                <form method="post" action="/User/Delete/@user.UserId" style="margin: 0;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" onclick="return confirm('¿Seguro que quieres eliminar este usuario?')" style="background: rgba(248,113,113,0.15); color: #f87171; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer;">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+    @if (!Model.Any())
+    {
+        <div style="text-align: center; padding: 50px 20px;">
+            <i class="bi bi-person-fill" style="font-size: 40px; color: rgba(99,102,241,0.4); display: block; margin-bottom: 12px;"></i>
+            <p style="color: rgba(255,255,255,0.3); font-size: 14px;">No hay usuarios registrados</p>
+        </div>
+    }
+</div>
+
+<!-- MODAL AGREGAR USUARIO -->
+<div id="modalAgregar" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 35px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h5 style="color: #ffffff; font-weight: 700; font-size: 18px; margin: 0;">Agregar Usuario</h5>
+            <button onclick="document.getElementById('modalAgregar').style.display='none'" style="background: none; border: none; color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer;">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <form method="post" action="/User/Create">
+            @Html.AntiForgeryToken()
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 18px;">
+                <div>
+                    <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Nombre</label>
+                    <input type="text" name="Name" required placeholder="Ej: Juan" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                </div>
+                <div>
+                    <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Apellido</label>
+                    <input type="text" name="LastName" required placeholder="Ej: Pérez" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                </div>
+            </div>
+            <div style="margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Email</label>
+                <input type="email" name="Email" required placeholder="Ej: juan@correo.com" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+            </div>
+            <div style="margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Contraseña</label>
+                <input type="password" name="Password" required placeholder="Contraseña" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+            </div>
+            <div style="margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Rol</label>
+                <select name="RoleId" required style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;">
+                    <option value="">-- Seleccionar rol --</option>
+                    @foreach (var role in ViewBag.Roles ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>())
+                    {
+                        <option value="@role.Value">@role.Text</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; letter-spacing: 1px; cursor: pointer; margin-top: 10px;">
+                <i class="bi bi-check-lg"></i> Guardar Usuario
+            </button>
+        </form>
     </div>
 </div>
 
-<!-- CONTENIDO -->
-<div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 60px; text-align: center;">
-    <i class="bi bi-person-fill" style="font-size: 48px; color: rgba(99,102,241,0.5); display: block; margin-bottom: 15px;"></i>
-    <p style="color: rgba(255,255,255,0.3); font-size: 15px;">Módulo en construcción</p>
+<!-- MODAL EDITAR USUARIO -->
+<div id="modalEditar" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 35px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h5 style="color: #ffffff; font-weight: 700; font-size: 18px; margin: 0;">Editar Usuario</h5>
+            <button onclick="document.getElementById('modalEditar').style.display='none'" style="background: none; border: none; color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer;">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <form method="post" action="/User/Edit">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="UserId" id="editUserId" />
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 18px;">
+                <div>
+                    <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Nombre</label>
+                    <input type="text" name="Name" id="editName" required style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                </div>
+                <div>
+                    <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Apellido</label>
+                    <input type="text" name="LastName" id="editLastName" required style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                </div>
+            </div>
+            <div style="margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Email</label>
+                <input type="email" name="Email" id="editEmail" required style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+            </div>
+            <div style="margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Nueva Contraseña <span style="color: rgba(255,255,255,0.3); font-size: 11px;">(dejar vacío para no cambiar)</span></label>
+                <input type="password" name="Password" placeholder="Nueva contraseña" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+            </div>
+            <div style="margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Rol</label>
+                <select name="RoleId" id="editRoleId" required style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;">
+                    <option value="">-- Seleccionar rol --</option>
+                    @foreach (var role in ViewBag.Roles ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>())
+                    {
+                        <option value="@role.Value">@role.Text</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; letter-spacing: 1px; cursor: pointer; margin-top: 10px;">
+                <i class="bi bi-check-lg"></i> Guardar Cambios
+            </button>
+        </form>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        function abrirEditar(id, nombre, apellido, email, rolId) {
+            document.getElementById('editUserId').value = id;
+            document.getElementById('editName').value = nombre;
+            document.getElementById('editLastName').value = apellido;
+            document.getElementById('editEmail').value = email;
+            document.getElementById('editRoleId').value = rolId;
+            document.getElementById('modalEditar').style.display = 'flex';
+        }
+    </script>
+}
