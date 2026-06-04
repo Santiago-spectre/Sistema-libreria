@@ -22,6 +22,11 @@ namespace SistemaWebPapeleria.Controllers
         {
             var products = await _appDbContext.Products.Include(p => p.Category).Include(p => p.Supplier).OrderBy(p => p.Name).ToListAsync();
 
+            // Tarjetas
+            ViewBag.TotalProducts = await _appDbContext.Products.CountAsync();
+            ViewBag.LowStock = await _appDbContext.Products.Where(p => !p.IsService && p.IsActive && p.Stock <= p.MinimumStock && p.Stock > 0).CountAsync();
+            ViewBag.OutOfStock = await _appDbContext.Products.Where(p => !p.IsService && p.IsActive && p.Stock == 0).CountAsync();
+
             // Agregar categorías y proveedores para el modal
             ViewBag.Categories = new SelectList(await _appDbContext.Categories.ToListAsync(), "CategoryId", "Name");
             ViewBag.Suppliers = new SelectList(await _appDbContext.Suppliers.Where(s => s.Status).ToListAsync(), "SupplierId", "Name");

@@ -73,6 +73,102 @@
     </div>
 </div>
 
+<!-- GRAFICAS -->
+<div style="display: grid; grid-template-columns: 3fr 2fr; gap: 20px; margin-bottom: 30px;">
+
+    <!-- Grafica de barras - Ventas ultima semana -->
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 25px;">
+        <h5 style="color: #ffffff; font-weight: 700; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px;">
+            <i class="bi bi-bar-chart-fill" style="color: #6366f1; margin-right: 8px;"></i> Ventas de la última semana
+        </h5>
+        <canvas id="chartSemana" style="max-height: 250px;"></canvas>
+    </div>
+
+    <!-- Grafica de dona - Ventas por metodo de pago -->
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 25px;">
+        <h5 style="color: #ffffff; font-weight: 700; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px;">
+            <i class="bi bi-pie-chart-fill" style="color: #6366f1; margin-right: 8px;"></i> Ventas por método de pago
+        </h5>
+        <canvas id="chartPago" style="max-height: 250px;"></canvas>
+    </div>
+
+</div>
+
+<!-- FILA INFERIOR -->
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 30px; margin-bottom: 30px">
+
+    <!-- Productos con stock bajo -->
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 25px;">
+        <h5 style="color: #ffffff; font-weight: 700; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 15px;">
+            <i class="bi bi-exclamation-triangle-fill" style="color: #f87171; margin-right: 8px;"></i> Stock bajo
+        </h5>
+        @if (Model.LowStockProducts.Count == 0)
+        {
+            <p style="color: rgba(255,255,255,0.3); font-size: 13px; text-align: center; padding: 20px 0;">Sin alertas de stock</p>
+        }
+        else
+        {
+            @foreach (var p in Model.LowStockProducts)
+            {
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <span style="color: #ffffff; font-size: 13px;">@p.Name</span>
+                    <span style="background: rgba(248,113,113,0.15); color: #f87171; padding: 3px 10px; border-radius: 20px; font-size: 11px;">@p.Stock unid.</span>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Top 5 productos mas vendidos -->
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 25px;">
+        <h5 style="color: #ffffff; font-weight: 700; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 15px;">
+            <i class="bi bi-trophy-fill" style="color: #fbbf24; margin-right: 8px;"></i> Top 5 más vendidos
+        </h5>
+        @if (Model.TopProducts.Count == 0)
+        {
+            <p style="color: rgba(255,255,255,0.3); font-size: 13px; text-align: center; padding: 20px 0;">Sin datos aún</p>
+        }
+        else
+        {
+            @for (int i = 0; i < Model.TopProducts.Count; i++)
+            {
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #6366f1; font-weight: 700; font-size: 14px;">@(i + 1).</span>
+                        <span style="color: #ffffff; font-size: 13px;">@Model.TopProducts[i].ProductName</span>
+                    </div>
+                    <span style="color: #34d399; font-size: 13px; font-weight: 700;">@Model.TopProducts[i].TotalSold unid.</span>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Resumen metodo de pago -->
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 25px;">
+        <h5 style="color: #ffffff; font-weight: 700; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 15px;">
+            <i class="bi bi-cash-coin" style="color: #34d399; margin-right: 8px;"></i> Resumen de pagos
+        </h5>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: rgba(255,255,255,0.6); font-size: 13px;">Efectivo</span>
+                <span style="color: #ffffff; font-weight: 700; font-size: 13px;">S/ @Model.SalesEfectivo.ToString("0.00")</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: rgba(255,255,255,0.6); font-size: 13px;">Yape</span>
+                <span style="color: #ffffff; font-weight: 700; font-size: 13px;">S/ @Model.SalesYape.ToString("0.00")</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: rgba(255,255,255,0.6); font-size: 13px;">Plin</span>
+                <span style="color: #ffffff; font-weight: 700; font-size: 13px;">S/ @Model.SalesPlin.ToString("0.00")</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: rgba(255,255,255,0.6); font-size: 13px;">Tarjeta</span>
+                <span style="color: #ffffff; font-weight: 700; font-size: 13px;">S/ @Model.SalesTarjeta.ToString("0.00")</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
 <!-- TABLA ULTIMAS VENTAS -->
 <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 25px;">
     <h5 style="color: #ffffff; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; font-size: 13px; margin-bottom: 20px;">
@@ -90,6 +186,15 @@
             </tr>
         </thead>
         <tbody>
+            @if (Model.LastSales.Count == 0)
+            {
+                <tr>
+                    <td colspan="6" style="text-align: center; color: rgba(255, 255, 255, 0.3); font-size: 13px; padding: 30px;">
+                        <i class="bi bi-clock-history" style="font-size: 24px; display: block; margin-bottom: 8px"></i>
+                        No hay ventas registradas aún
+                    </td>
+                </tr>
+            }
             @foreach (var venta in Model.LastSales)
             {
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
@@ -115,7 +220,60 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+
+        // Grafica de barras - Ventas ultima semana
+        const ctxSemana = document.getElementById('chartSemana').getContext('2d');
+        new Chart(ctxSemana, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.WeekDays)),
+                datasets: [{
+                    label: 'Ventas (S/)',
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.WeekSales)),
+                    backgroundColor: 'rgba(99,102,241,0.5)',
+                    borderColor: '#6366f1',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { ticks: { color: 'rgba(255,255,255,0.5)' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { ticks: { color: 'rgba(255,255,255,0.5)' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                }
+            }
+        });
+
+        // Grafica de dona - Ventas por metodo de pago
+        const ctxPago = document.getElementById('chartPago').getContext('2d');
+        new Chart(ctxPago, {
+            type: 'doughnut',
+            data: {
+                labels: ['Efectivo', 'Yape', 'Plin', 'Tarjeta'],
+                datasets: [{
+                    data: [@Model.SalesEfectivo, @Model.SalesYape, @Model.SalesPlin, @Model.SalesTarjeta],
+                    backgroundColor: ['#fbbf24', '#34d399', '#60a5fa', '#6366f1'],
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        align: 'start',
+                        labels: { color: 'rgba(255,255,255,0.6)', padding: 15 }
+                    }
+                }
+            }
+        });
+
         function actualizarFecha() {
             const ahora = new Date();
             const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };

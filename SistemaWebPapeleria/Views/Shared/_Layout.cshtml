@@ -13,10 +13,10 @@
             box-sizing: border-box;
         }
         body {
+            display: flex;
             min-height: 100vh;
             background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
             font-family: 'Segoe UI', sans-serif;
-            display: flex;
         }
         .sidebar {
             width: 250px;
@@ -145,14 +145,25 @@
             </div>
         </div>
         <div class="sidebar-menu">
-            <a href="/Home/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Home" ? "active" : "")"><i class="bi bi-house-fill"></i> Dashboard</a>
-            <a href="/Product/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Product" ? "active" : "")"><i class="bi bi-box-seam-fill"></i> Productos</a>
-            <a href="/Sale/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Sale" ? "active" : "")"><i class="bi bi-cart-fill"></i> Ventas</a>
-            <a href="/Supplier/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Supplier" ? "active" : "")"><i class="bi bi-truck"></i> Proveedores</a>
-            <a href="/CashClosing/Index" class="menu-item @(ViewData["Active"]?.ToString() == "CashClosing" ? "active" : "")"><i class="bi bi-cash-stack"></i> Cierre de Caja</a>
-            <a href="/User/Index" class="menu-item @(ViewData["Active"]?.ToString() == "User" ? "active" : "")"><i class="bi bi-person-fill"></i> Usuarios</a>
-            <a href="/Report/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Report" ? "active" : "")"><i class="bi bi-bar-chart-fill"></i> Reportes</a>
-            <a href="/Config/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Config" ? "active" : "")"><i class="bi bi-gear-fill"></i> Configuración</a>
+            @if (HttpContextAccessor.HttpContext.Session.GetString("UserRole") == "Administrador")
+            {
+                <a href="/Home/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Home" ? "active" : "")"><i class="bi bi-house-fill"></i> Dashboard</a>
+                <a href="/Product/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Product" ? "active" : "")"><i class="bi bi-box-seam-fill"></i> Productos</a>
+                <a href="/Sale/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Sale" ? "active" : "")"><i class="bi bi-cart-fill"></i> Ventas</a>
+                <a href="/Supplier/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Supplier" ? "active" : "")"><i class="bi bi-truck"></i> Proveedores</a>
+                <a href="/CashClosing/Index" class="menu-item @(ViewData["Active"]?.ToString() == "CashClosing" ? "active" : "")"><i class="bi bi-cash-stack"></i> Cierre de Caja</a>
+                <a href="/User/Index" class="menu-item @(ViewData["Active"]?.ToString() == "User" ? "active" : "")"><i class="bi bi-person-fill"></i> Usuarios</a>
+                <a href="/Report/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Report" ? "active" : "")"><i class="bi bi-bar-chart-fill"></i> Reportes</a>
+                <a href="/Config/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Config" ? "active" : "")"><i class="bi bi-gear-fill"></i> Configuración</a>
+            }
+            else if (HttpContextAccessor.HttpContext.Session.GetString("UserRole") == "Vendedor")
+            {
+                <a href="/Home/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Home" ? "active" : "")"><i class="bi bi-house-fill"></i> Dashboard</a>
+                <a href="/Sale/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Sale" ? "active" : "")"><i class="bi bi-cart-fill"></i> Ventas</a>
+                <a href="/CashClosing/Index" class="menu-item @(ViewData["Active"]?.ToString() == "CashClosing" ? "active" : "")"><i class="bi bi-cash-stack"></i> Cierre de Caja</a>
+                <a href="/Report/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Report" ? "active" : "")"><i class="bi bi-bar-chart-fill"></i> Reportes</a>
+                <a href="/Config/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Config" ? "active" : "")"><i class="bi bi-gear-fill"></i> Configuración</a>
+            }
         </div>
         <div class="sidebar-bottom">
             <div class="sidebar-profile">
