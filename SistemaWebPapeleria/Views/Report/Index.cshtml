@@ -1,18 +1,155 @@
-﻿@{
-    ViewData["Title"] = "Reporte";
+﻿@model List<SistemaWebPapeleria.Models.Sale>
+@{
+    ViewData["Title"] = "Reportes";
     ViewData["Active"] = "Report";
+    var userRole = Context.Session.GetString("UserRole");
 }
 
 <!-- TOPBAR -->
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
     <div>
-        <p style="color: rgba(255,255,255,0.4); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;">Gestion de Reportes</p>
-        <h4 style="color: #ffffff; font-weight: 700; font-size: 24px;">Reporte</h4>
+        <p style="color: rgba(255,255,255,0.4); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;">Análisis y estadísticas</p>
+        <h4 style="color: #ffffff; font-weight: 700; font-size: 24px;">Reportes</h4>
     </div>
 </div>
 
-<!-- CONTENIDO -->
-<div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 60px; text-align: center;">
-    <i class="bi bi-cash-stack" style="font-size: 48px; color: rgba(99,102,241,0.5); display: block; margin-bottom: 15px;"></i>
-    <p style="color: rgba(255,255,255,0.3); font-size: 15px;">Módulo en construcción</p>
+<!-- TABLA DE VENTAS -->
+<div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 25px; margin-bottom: 30px;">
+
+    <!-- Encabezado y filtros -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+        <div>
+            <h5 style="color: #ffffff; font-weight: 700; font-size: 16px; margin: 0;">Historial de Ventas</h5>
+            <p style="color: rgba(255,255,255,0.4); font-size: 12px; margin: 4px 0 0 0;">Tabla de ventas y generación de comprobantes</p>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            @if (userRole == "Administrador")
+            {
+                <select id="filtroUsuario" onchange="filtrar()" style="padding: 10px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 13px; outline: none;">
+                    <option value="">Todos los vendedores</option>
+                    @foreach (var user in ViewBag.Users)
+                    {
+                        <option value="@user.Name @user.LastName">@user.Name @user.LastName</option>
+                    }
+                </select>
+            }
+            <input type="date" id="filtroFecha" onchange="filtrar()" style="padding: 10px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 13px; outline: none;" />
+            <input type="text" id="filtroBuscar" oninput="filtrar()" placeholder="Buscar..." style="padding: 10px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 13px; outline: none;" />
+        </div>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.07);">
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">#</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Vendedor</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Fecha</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Total</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Método de Pago</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Comprobante</th>
+                <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Acción</th>
+            </tr>
+        </thead>
+        <tbody id="tablaVentas">
+            @if (Model.Count == 0)
+            {
+                <tr>
+                    <td colspan="7" style="text-align: center; color: rgba(255,255,255,0.3); font-size: 13px; padding: 40px;">
+                        <i class="bi bi-receipt" style="font-size: 32px; display: block; margin-bottom: 10px;"></i>
+                        No hay ventas registradas aún
+                    </td>
+                </tr>
+            }
+            @foreach (var sale in Model)
+            {
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);" data-vendedor="@sale.User?.Name @sale.User?.LastName" data-fecha="@sale.Date.ToString("yyyy-MM-dd")">
+                    <td style="color: rgba(255,255,255,0.4); font-size: 13px; padding: 12px 15px;">#@sale.SaleId</td>
+                    <td style="color: #ffffff; font-size: 13px; padding: 12px 15px;">@sale.User?.Name @sale.User?.LastName</td>
+                    <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@sale.Date.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td style="color: #34d399; font-size: 13px; font-weight: 700; padding: 12px 15px;">S/ @sale.Total.ToString("0.00")</td>
+                    <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@sale.PaymentMethod</td>
+                    <td style="padding: 12px 15px;">
+                        @if (sale.ReceiptIssued)
+                        {
+                            <span style="background: rgba(52,211,153,0.15); color: #34d399; padding: 3px 10px; border-radius: 20px; font-size: 11px;">Emitido</span>
+                        }
+                        else
+                        {
+                            <span style="background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.3); padding: 3px 10px; border-radius: 20px; font-size: 11px;">No generada</span>
+                        }
+                    </td>
+                    <td style="padding: 12px 15px;">
+                        <button onclick="generarComprobante(@sale.SaleId)"
+                                style="background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 8px; color: #ffffff; font-size: 12px; padding: 6px 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="bi bi-file-earmark-text-fill"></i> Generar Comprobante
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
+
+<!-- INFORMES MENSUALES -->
+<div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 25px;">
+    <h5 style="color: #ffffff; font-weight: 700; font-size: 16px; margin-bottom: 5px;">Informes de Ventas Mensuales</h5>
+    <p style="color: rgba(255,255,255,0.4); font-size: 12px; margin-bottom: 20px;">Generar informes de ventas por mes</p>
+
+    @if (ViewBag.MonthlyGroups.Count == 0)
+    {
+        <div style="text-align: center; padding: 40px;">
+            <i class="bi bi-calendar-x" style="font-size: 32px; color: rgba(255,255,255,0.2); display: block; margin-bottom: 10px;"></i>
+            <p style="color: rgba(255,255,255,0.3); font-size: 13px;">No hay informes disponibles aún</p>
+        </div>
+    }
+    else
+    {
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
+            @foreach (var group in ViewBag.MonthlyGroups)
+            {
+                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 20px; text-align: center;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h4 style="color: #ffffff; font-weight: 700; font-size: 18px; margin: 0; text-transform: capitalize;">@group.MonthName</h4>
+                        <i class="bi bi-download" style="color: #6366f1; font-size: 18px;"></i>
+                    </div>
+                    <p style="color: rgba(255,255,255,0.4); font-size: 12px; margin-bottom: 5px;">@group.Count ventas — S/ @group.Total.ToString("0.00")</p>
+                    <button onclick="descargarReporte(@group.Month, @group.Year)"
+                            style="width: 100%; margin-top: 12px; padding: 10px; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 8px; color: #ffffff; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i class="bi bi-file-earmark-pdf-fill"></i> Descargar Reporte (PDF)
+                    </button>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function filtrar() {
+            const vendedor = document.getElementById('filtroUsuario')?.value.toLowerCase() ?? '';
+            const fecha = document.getElementById('filtroFecha')?.value ?? '';
+            const buscar = document.getElementById('filtroBuscar')?.value.toLowerCase() ?? '';
+            const filas = document.querySelectorAll('#tablaVentas tr[data-vendedor]');
+
+            filas.forEach(fila => {
+                const v = fila.dataset.vendedor?.toLowerCase() ?? '';
+                const f = fila.dataset.fecha ?? '';
+                const texto = fila.textContent.toLowerCase();
+
+                const matchVendedor = vendedor === '' || v.includes(vendedor);
+                const matchFecha = fecha === '' || f === fecha;
+                const matchBuscar = buscar === '' || texto.includes(buscar);
+
+                fila.style.display = matchVendedor && matchFecha && matchBuscar ? '' : 'none';
+            });
+        }
+
+        function generarComprobante(saleId) {
+            alert('Generación de comprobante para venta #' + saleId + ' — próximamente disponible.');
+        }
+
+        function descargarReporte(mes, anio) {
+            alert('Descarga de reporte ' + mes + '/' + anio + ' — próximamente disponible.');
+        }
+    </script>
+}
