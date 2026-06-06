@@ -27,6 +27,9 @@ namespace SistemaWebPapeleria.Controllers
             ViewBag.LowStock = await _appDbContext.Products.Where(p => !p.IsService && p.IsActive && p.Stock <= p.MinimumStock && p.Stock > 0).CountAsync();
             ViewBag.OutOfStock = await _appDbContext.Products.Where(p => !p.IsService && p.IsActive && p.Stock == 0).CountAsync();
 
+            // Lista de categorias para la tarjeta
+            ViewBag.CategoriasList = await _appDbContext.Categories.OrderBy(c => c.Name).ToListAsync();
+
             // Agregar categorías y proveedores para el modal
             ViewBag.Categories = new SelectList(await _appDbContext.Categories.ToListAsync(), "CategoryId", "Name");
             ViewBag.Suppliers = new SelectList(await _appDbContext.Suppliers.Where(s => s.Status).ToListAsync(), "SupplierId", "Name");
@@ -36,7 +39,7 @@ namespace SistemaWebPapeleria.Controllers
 
         //muestra el formulario para agregar productos
         [HttpGet]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create()       //nuevo
         {
             //Carga las categorias para el dropdow
             ViewBag.Categories = new SelectList(await _appDbContext.Categories.ToListAsync(), "CategoryId", "Name");
