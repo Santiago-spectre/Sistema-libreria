@@ -13,6 +13,126 @@
     </div>
 </div>
 
+<!-- REPORTE DEL DÍA -->
+<div style="margin-bottom: 30px;">
+    <h5 style="color: #ffffff; font-weight: 700; font-size: 18px; margin-bottom: 14px;">Reporte del Día</h5>
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 25px;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.07);">
+                    @if (userRole == "Administrador")
+                    {
+                        <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Vendedor</th>
+                    }
+                    <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Fecha</th>
+                    <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">N° Ventas</th>
+                    <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Total Recaudado</th>
+                    <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in ViewBag.ReporteHoy)
+                {
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                        @if (userRole == "Administrador")
+                        {
+                            <td style="color: #ffffff; font-size: 13px; padding: 12px 15px;">@r.NombreCompleto</td>
+                        }
+                        <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@DateTime.Today.ToString("dd/MM/yyyy")</td>
+                        <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@r.NumVentas ventas</td>
+                        <td style="color: #34d399; font-size: 13px; font-weight: 700; padding: 12px 15px;">S/ @r.TotalVentas.ToString("0.00")</td>
+                        <td style="padding: 12px 15px;">
+                            @if (userRole == "Administrador")
+                            {
+                                var cajasCerradas = (List<int>)ViewBag.CajasCerradasHoy;
+                                if (cajasCerradas.Contains((int)r.UserId))
+                                {
+                                    <button onclick="alert('Generar reporte — próximamente disponible.')"
+                                            style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                                        <i class="bi bi-file-earmark-bar-graph-fill"></i> Generar Reporte
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span style="color: rgba(255,255,255,0.25); font-size: 12px;">Sin cerrar</span>
+                                }
+                            }
+                            else
+                            {
+                                if ((bool)ViewBag.CajaCerradaHoy)
+                                {
+                                    <button onclick="alert('Generar reporte — próximamente disponible.')"
+                                            style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                                        <i class="bi bi-file-earmark-bar-graph-fill"></i> Generar Reporte
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span style="color: rgba(255,255,255,0.25); font-size: 12px;">Sin cerrar</span>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- HISTORIAL ÚLTIMOS 7 DÍAS -->
+<div style="margin-bottom: 30px;">
+    <h5 style="color: #ffffff; font-weight: 700; font-size: 18px; margin-bottom: 14px;">Historial Últimos 7 Días</h5>
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 25px;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.07);">
+                    <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Fecha</th>
+                    @if (userRole == "Administrador")
+                    {
+                        <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Vendedor</th>
+                    }
+                    <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">N° Ventas</th>
+                    <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Total</th>
+                    <th style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 15px; text-align: left;">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (((IEnumerable<SistemaWebPapeleria.Models.CashClosing>)ViewBag.Historial7).Any())
+                {
+                    @foreach (var caja in (IEnumerable<SistemaWebPapeleria.Models.CashClosing>)ViewBag.Historial7)
+                    {
+                        var ventasDia = Model.Count(s => s.UserId == caja.UserId && s.Date.Date == caja.Date.Date);
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                            <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@caja.Date.ToString("dd/MM/yyyy")</td>
+                            @if (userRole == "Administrador")
+                            {
+                                <td style="color: #ffffff; font-size: 13px; padding: 12px 15px;">@caja.User?.Name @caja.User?.LastName</td>
+                            }
+                            <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@ventasDia ventas</td>
+                            <td style="color: #34d399; font-size: 13px; font-weight: 700; padding: 12px 15px;">S/ @caja.TotalSales.ToString("0.00")</td>
+                            <td style="padding: 12px 15px;">
+                                <button onclick="alert('Generar reporte — próximamente disponible.')"
+                                        style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="bi bi-file-earmark-bar-graph-fill"></i> Generar Reporte
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.3); font-size: 13px; padding: 40px;">
+                            <i class="bi bi-calendar-x" style="font-size: 32px; display: block; margin-bottom: 10px;"></i>
+                            No hay registros en los últimos 7 días
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <!-- TABLA DE VENTAS -->
 <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 25px; margin-bottom: 30px;">
 
@@ -80,7 +200,7 @@
                     </td>
                     <td style="padding: 12px 15px;">
                         <button onclick="generarComprobante(@sale.SaleId)"
-                                style="background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 8px; color: #ffffff; font-size: 12px; padding: 6px 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                                style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                             <i class="bi bi-file-earmark-text-fill"></i> Generar Comprobante
                         </button>
                     </td>

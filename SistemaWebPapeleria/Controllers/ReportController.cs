@@ -18,8 +18,8 @@ namespace SistemaWebPapeleria.Controllers
         {
             var userRole = HttpContext.Session.GetString("UserRole");
             var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
+            var hoy = DateTime.Today;
 
-            // Si es vendedor, solo ve sus propias ventas
             List<Sale> sales;
             if (userRole == "Vendedor")
             {
@@ -42,7 +42,7 @@ namespace SistemaWebPapeleria.Controllers
                 .Where(u => u.Status)
                 .ToListAsync();
 
-            //Meses con ventas para informes mensuales
+            // Meses con ventas para informes mensuales
             var monthlyGroups = sales
                 .GroupBy(s => new { s.Date.Year, s.Date.Month })
                 .Select(g => new
@@ -58,6 +58,67 @@ namespace SistemaWebPapeleria.Controllers
                 .ToList();
 
             ViewBag.MonthlyGroups = monthlyGroups;
+
+            // ── Reporte del día ──
+            if (userRole == "Administrador")
+            {
+                var usuarios = await _appDbContext.Users
+                    .Where(u => u.Status)
+                    .ToListAsync();
+
+                var reporteHoy = usuarios.Select(u => new
+                {
+                    UserId = u.UserId,
+                    NombreCompleto = u.Name + " " + u.LastName,
+                    TotalVentas = sales.Where(s => s.UserId == u.UserId && s.Date.Date == hoy).Sum(s => s.Total),
+                    NumVentas = sales.Count(s => s.UserId == u.UserId && s.Date.Date == hoy)
+                }).ToList();
+
+                // Cajas cerradas hoy por usuario
+                var cajasCerradasHoy = await _appDbContext.CashClosings
+                    .Where(c => c.Date.Date == hoy && (c.ClosingAmount != 0 || c.TotalSales != 0))
+                    .Select(c => c.UserId)
+                    .ToListAsync();
+
+                ViewBag.CajasCerradasHoy = cajasCerradasHoy;
+                ViewBag.ReporteHoy = reporteHoy;
+
+                // Historial últimos 7 días por usuario
+                var cajasUltimos7 = await _appDbContext.CashClosings
+                    .Include(c => c.User)
+                    .Where(c => c.Date.Date >= hoy.AddDays(-6) && c.Date.Date <= hoy && (c.ClosingAmount != 0 || c.TotalSales != 0))
+                    .OrderByDescending(c => c.Date)
+                    .ToListAsync();
+
+                ViewBag.Historial7 = cajasUltimos7;
+            }
+            else
+            {
+                var reporteHoy = new[]
+                {
+                    new
+                    {
+                        UserId = userId,
+                        NombreCompleto = "",
+                        TotalVentas = sales.Where(s => s.Date.Date == hoy).Sum(s => s.Total),
+                        NumVentas = sales.Count(s => s.Date.Date == hoy)
+                    }
+                }.ToList();
+
+                var cajaCerradaHoy = await _appDbContext.CashClosings
+                    .AnyAsync(c => c.UserId == userId && c.Date.Date == hoy && (c.ClosingAmount != 0 || c.TotalSales != 0));
+
+                ViewBag.CajaCerradaHoy = cajaCerradaHoy;
+                ViewBag.ReporteHoy = reporteHoy;
+
+                var cajasUltimos7Vendedor = await _appDbContext.CashClosings
+                    .Include(c => c.User)
+                    .Where(c => c.UserId == userId && c.Date.Date >= hoy.AddDays(-6) && c.Date.Date <= hoy && (c.ClosingAmount != 0 || c.TotalSales != 0))
+                    .OrderByDescending(c => c.Date)
+                    .ToListAsync();
+
+                ViewBag.Historial7 = cajasUltimos7Vendedor;
+            }
 
             return View(sales);
         }
