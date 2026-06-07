@@ -58,7 +58,7 @@ namespace SistemaWebPapeleria.Controllers
             Product product = new Product()
             {
                 Name = model.Name,
-                Description = model.Description,
+                Description = model.Description ?? "",
                 SalePrice = model.SalePrice,
                 PurchasePrice = model.PurchasePrice,
                 Stock = model.Stock,
@@ -115,7 +115,7 @@ namespace SistemaWebPapeleria.Controllers
 
             // Actualiza los datos del producto
             product.Name = model.Name;
-            product.Description = model.Description;
+            product.Description = model.Description ?? "";
             product.SalePrice = model.SalePrice;
             product.PurchasePrice = model.PurchasePrice;
             product.Stock = model.Stock;
@@ -142,6 +142,19 @@ namespace SistemaWebPapeleria.Controllers
             product.IsActive = !product.IsActive;
 
             _appDbContext.Products.Update(product);
+            await _appDbContext.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Product");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var product = await _appDbContext.Products.FindAsync(id);
+
+            if (product == null) return RedirectToAction("Index");
+
+            _appDbContext.Products.Remove(product);
             await _appDbContext.SaveChangesAsync();
 
             return RedirectToAction("Index", "Product");

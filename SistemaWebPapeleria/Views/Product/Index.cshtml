@@ -105,11 +105,11 @@
                         <td style="padding: 12px 15px;">
                             @if (product.IsService)
                             {
-                                <span class="badge-service">Servicio</span>
+                                <span style="background: rgba(99,102,241,0.15); color: #6366f1; padding: 3px 10px; border-radius: 20px; font-size: 11px;">Servicio</span>
                             }
                             else
                             {
-                                <span class="badge-product">Producto</span>
+                                <span style="background: rgba(52,211,153,0.15); color: #34d399; padding: 3px 10px; border-radius: 20px; font-size: 11px;">Producto</span>
                             }
                         </td>
                         <td style="color: #34d399; font-size: 13px; font-weight: 700; padding: 12px 15px;">S/ @product.SalePrice</td>
@@ -130,21 +130,22 @@
                         <td style="padding: 12px 15px;">
                             @if (product.IsActive)
                             {
-                                <span class="badge-active">Activo</span>
+                                <span style="background: rgba(52,211,153,0.15); color: #34d399; padding: 3px 10px; border-radius: 20px; font-size: 11px;">Activo</span>
                             }
                             else
                             {
-                                <span class="badge-inactive">Inactivo</span>
+                                <span style="background: rgba(255,80,80,0.15); color: #ff5050; padding: 3px 10px; border-radius: 20px; font-size: 11px;">Inactivo</span>
                             }
                         </td>
                         <td style="padding: 12px 15px;">
                             <div style="display: flex; gap: 8px;">
-                                <a href="/Product/Edit/@product.ProductId" style="background: rgba(99,102,241,0.15); color: #6366f1; padding: 6px 12px; border-radius: 8px; font-size: 12px; text-decoration: none;">
+                                <button onclick="abrirEditarProducto(@product.ProductId, '@Html.Raw(product.Name)', '@Html.Raw(product.Description)', @product.SalePrice.ToString(System.Globalization.CultureInfo.InvariantCulture), @product.PurchasePrice.ToString(System.Globalization.CultureInfo.InvariantCulture), @product.Stock, @product.MinimumStock, @product.IsService.ToString().ToLower(), @product.CategoryId, '@(product.SupplierId.HasValue ? product.SupplierId.ToString() : "")')"
+                                        style="background: rgba(99,102,241,0.15); color: #6366f1; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer;">
                                     <i class="bi bi-pencil-fill"></i>
-                                </a>
+                                </button>
                                 <form method="post" action="/Product/ToggleStatus/@product.ProductId" style="margin: 0;">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" style="background: rgba(248,113,113,0.15); color: #f87171; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer;">
+                                    <button type="submit" style="background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5); padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer;">
                                         @if (product.IsActive)
                                         {
                                             <i class="bi bi-eye-slash-fill"></i>
@@ -153,6 +154,12 @@
                                         {
                                             <i class="bi bi-eye-fill"></i>
                                         }
+                                    </button>
+                                </form>
+                                <form method="post" action="/Product/Delete/@product.ProductId" style="margin: 0;" onsubmit="return confirm('¿Eliminar este producto?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" style="background: rgba(248,113,113,0.15); color: #f87171; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer;">
+                                        <i class="bi bi-trash-fill"></i>
                                     </button>
                                 </form>
                             </div>
@@ -165,7 +172,7 @@
     </div>
 
     <!-- Tarjeta de categorias derecha -->
-    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 20px; display: flex; flex-direction: column; gap: 12px; min-height: 400px;">
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(99,102,241,0.1); border-radius: 15px; padding: 20px; display: flex; flex-direction: column; gap: 12px; align-self: start; position: sticky; top: 20px; max-height: 80vh; overflow: hidden;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 8px;">
                 <div style="background: rgba(99,102,241,0.15); padding: 8px; border-radius: 8px;">
@@ -180,7 +187,7 @@
         </div>
 
         <!-- Lista de categorias -->
-        <div style="flex: 1; overflow-y: auto;">
+        <div style="flex: 1; overflow-y: auto; max-height: calc(80vh - 100px);">
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 4px;">
                 <span style="color: rgba(255,255,255,0.4); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; width: 30px;">ID</span>
                 <span style="color: rgba(255,255,255,0.4); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; flex: 1; padding-left: 8px;">Nombre</span>
@@ -194,7 +201,7 @@
             {
                 @foreach (var cat in ViewBag.CategoriasList)
                 {
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <div class="cat-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
                         <span style="color: rgba(255,255,255,0.3); font-size: 11px; width: 30px;">#@cat.CategoryId</span>
                         <span style="color: #ffffff; font-size: 13px; flex: 1; padding-left: 8px;">@cat.Name</span>
                         <div style="display: flex; gap: 6px;">
@@ -213,6 +220,7 @@
                     </div>
                 }
             }
+            <div id="paginacionCats" style="display: flex; justify-content: center; gap: 6px; margin-top: 12px; flex-wrap: wrap;"></div>
         </div>
     </div>
 </div>
@@ -232,6 +240,10 @@
                 <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Nombre del producto</label>
                 <input type="text" name="Name" required placeholder="Ej: Cuaderno A4" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
             </div>
+            <div style="margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Descripción (opcional)</label>
+                <input type="text" name="Description" placeholder="Descripción del producto" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+            </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 18px;">
                 <div>
                     <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Precio venta (S/)</label>
@@ -245,11 +257,11 @@
             <div id="stockField" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 18px;">
                 <div>
                     <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Stock inicial</label>
-                    <input type="number" name="Stock" required min="0" placeholder="0" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                    <input type="number" name="Stock" min="0" placeholder="0" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
                 </div>
                 <div>
                     <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Stock mínimo (alerta)</label>
-                    <input type="number" name="MinimumStock" required min="0" value="5" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                    <input type="number" name="MinimumStock" min="0" value="5" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
                 </div>
             </div>
             <div style="margin-bottom: 18px;">
@@ -341,6 +353,78 @@
     </div>
 </div>
 
+<!-- MODAL EDITAR PRODUCTO -->
+<div id="modalEditarProducto" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 35px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h5 style="color: #ffffff; font-weight: 700; font-size: 18px; margin: 0;">Editar Producto</h5>
+            <button onclick="document.getElementById('modalEditarProducto').style.display='none'" style="background: none; border: none; color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer;">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <form method="post" id="formEditarProducto">
+            @Html.AntiForgeryToken()
+            <div style="margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Nombre del producto</label>
+                <input type="text" name="Name" id="editNombre" required style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+            </div>
+            <div style="margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Descripción (opcional)</label>
+                <input type="text" name="Description" id="editDescripcion" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 18px;">
+                <div>
+                    <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Precio venta (S/)</label>
+                    <input type="number" name="SalePrice" id="editPrecioVenta" required step="0.01" min="0" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                </div>
+                <div>
+                    <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Precio compra (S/)</label>
+                    <input type="number" name="PurchasePrice" id="editPrecioCompra" required step="0.01" min="0" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                </div>
+            </div>
+            <div id="editStockField" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 18px;">
+                <div>
+                    <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Stock</label>
+                    <input type="number" name="Stock" id="editStock" min="0" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                </div>
+                <div>
+                    <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Stock mínimo</label>
+                    <input type="number" name="MinimumStock" id="editStockMinimo" min="0" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                </div>
+            </div>
+            <div style="margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Categoría</label>
+                <select name="CategoryId" id="editCategoria" required style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;">
+                    <option value="">-- Seleccionar categoría --</option>
+                    @foreach (var cat in ViewBag.Categories)
+                    {
+                        <option value="@cat.Value">@cat.Text</option>
+                    }
+                </select>
+            </div>
+            <div id="editProveedorField" style="margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Proveedor (opcional)</label>
+                <select name="SupplierId" id="editProveedor" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;">
+                    <option value="">-- Sin proveedor --</option>
+                    @foreach (var sup in ViewBag.Suppliers)
+                    {
+                        <option value="@sup.Value">@sup.Text</option>
+                    }
+                </select>
+            </div>
+            <div style="margin-bottom: 18px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" name="IsService" id="editCheckServicio" value="true" style="width: 18px; height: 18px; accent-color: #6366f1; cursor: pointer;" />
+                    <span style="color: rgba(255,255,255,0.8); font-size: 14px;">¿Es un servicio?</span>
+                </label>
+            </div>
+            <button type="submit" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; letter-spacing: 1px; cursor: pointer; margin-top: 10px;">
+                <i class="bi bi-check-lg"></i> Guardar Cambios
+            </button>
+        </form>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         const searchInput = document.getElementById('searchInput');
@@ -377,20 +461,27 @@
             let paginacion = document.getElementById('paginacion');
             paginacion.innerHTML = '';
             if (totalPaginas <= 1) return;
+            const btnStyle = 'background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #ffffff; padding: 5px 11px; font-size: 13px; cursor: pointer;';
+            const btnActiveStyle = 'background: rgba(99,102,241,0.4); border: 1px solid #6366f1; border-radius: 8px; color: #ffffff; padding: 5px 11px; font-size: 13px; cursor: pointer; font-weight: 700;';
+            
             const btnAnterior = document.createElement('button');
             btnAnterior.textContent = '‹';
+            btnAnterior.style.cssText = btnStyle;
             btnAnterior.disabled = currentPage === 1;
             btnAnterior.onclick = () => { currentPage--; renderPagina(); };
             paginacion.appendChild(btnAnterior);
+            
             for (let i = 1; i <= totalPaginas; i++) {
                 const btn = document.createElement('button');
                 btn.textContent = i;
-                if (i === currentPage) btn.classList.add('active');
+                btn.style.cssText = i === currentPage ? btnActiveStyle : btnStyle;
                 btn.onclick = () => { currentPage = i; renderPagina(); };
                 paginacion.appendChild(btn);
             }
+
             const btnSiguiente = document.createElement('button');
             btnSiguiente.textContent = '›';
+            btnSiguiente.style.cssText = btnStyle;
             btnSiguiente.disabled = currentPage === totalPaginas;
             btnSiguiente.onclick = () => { currentPage++; renderPagina(); };
             paginacion.appendChild(btnSiguiente);
@@ -411,11 +502,82 @@
             proveedorField.style.display = this.checked ? 'none' : 'block';
         });
 
+                // ── Paginación categorías ──
+        const catsPorPagina = 9;
+        let catPaginaActual = 1;
+        const todasCats = document.querySelectorAll('.cat-item');
+
+        function renderCats() {
+            const total = todasCats.length;
+            const inicio = (catPaginaActual - 1) * catsPorPagina;
+            const fin = inicio + catsPorPagina;
+            todasCats.forEach((c, i) => c.style.display = (i >= inicio && i < fin) ? 'flex' : 'none');
+            renderPaginacionCats(total);
+        }
+
+        function renderPaginacionCats(total) {
+            const totalPaginas = Math.ceil(total / catsPorPagina);
+            const cont = document.getElementById('paginacionCats');
+            cont.innerHTML = '';
+            if (totalPaginas <= 1) return;
+
+            const btnStyle = 'background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #ffffff; padding: 4px 10px; font-size: 12px; cursor: pointer;';
+            const btnActiveStyle = 'background: rgba(99,102,241,0.4); border: 1px solid #6366f1; border-radius: 8px; color: #ffffff; padding: 4px 10px; font-size: 12px; cursor: pointer; font-weight: 700;';
+
+            const btnAnt = document.createElement('button');
+            btnAnt.textContent = '‹';
+            btnAnt.style.cssText = btnStyle;
+            btnAnt.disabled = catPaginaActual === 1;
+            btnAnt.onclick = () => { catPaginaActual--; renderCats(); };
+            cont.appendChild(btnAnt);
+
+            for (let i = 1; i <= totalPaginas; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.style.cssText = i === catPaginaActual ? btnActiveStyle : btnStyle;
+                btn.onclick = () => { catPaginaActual = i; renderCats(); };
+                cont.appendChild(btn);
+            }
+
+            const btnSig = document.createElement('button');
+            btnSig.textContent = '›';
+            btnSig.style.cssText = btnStyle;
+            btnSig.disabled = catPaginaActual === totalPaginas;
+            btnSig.onclick = () => { catPaginaActual++; renderCats(); };
+            cont.appendChild(btnSig);
+        }
+        
+        renderCats();
+
         function abrirEditarCategoria(id, nombre, descripcion) {
             document.getElementById('editCategoriaNombre').value = nombre;
             document.getElementById('editCategoriaDescripcion').value = descripcion;
             document.getElementById('formEditarCategoria').action = '/Category/Edit/' + id;
             document.getElementById('modalEditarCategoria').style.display = 'flex';
+        }
+        
+        function abrirEditarProducto(id, nombre, descripcion, precioVenta, precioCompra, stock, stockMinimo, esServicio, categoriaId, proveedorId) {
+            document.getElementById('editNombre').value = nombre;
+            document.getElementById('editDescripcion').value = descripcion;
+            document.getElementById('editPrecioVenta').value = precioVenta;
+            document.getElementById('editPrecioCompra').value = precioCompra;
+            document.getElementById('editStock').value = stock;
+            document.getElementById('editStockMinimo').value = stockMinimo;
+            document.getElementById('editCategoria').value = categoriaId;
+            document.getElementById('editProveedor').value = proveedorId;
+
+            const checkServ = document.getElementById('editCheckServicio');
+            checkServ.checked = esServicio;
+            document.getElementById('editStockField').style.display = esServicio ? 'none' : 'grid';
+            document.getElementById('editProveedorField').style.display = esServicio ? 'none' : 'block';
+
+            checkServ.onchange = function() {
+                document.getElementById('editStockField').style.display = this.checked ? 'none' : 'grid';
+                document.getElementById('editProveedorField').style.display = this.checked ? 'none' : 'block';
+            };
+
+            document.getElementById('formEditarProducto').action = '/Product/Edit/' + id;
+            document.getElementById('modalEditarProducto').style.display = 'flex';
         }
     </script>
 }

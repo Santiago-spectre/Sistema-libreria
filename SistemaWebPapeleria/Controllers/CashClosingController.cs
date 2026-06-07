@@ -19,6 +19,7 @@ namespace SistemaWebPapeleria.Controllers
         {
             var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
             var userRole = HttpContext.Session.GetString("UserRole");
+            var hoy = DateTime.Today;
 
             // Administrador ve todas las cajas
             if (userRole == "Administrador")
@@ -27,6 +28,16 @@ namespace SistemaWebPapeleria.Controllers
                     .Include(c => c.User)
                     .OrderByDescending(c => c.Date)
                     .ToListAsync();
+
+                var usuarios = await _context.Users.Include(u => u.Role).Where(u => u.Status).ToListAsync();
+                var cajasHoy = await _context.CashClosings
+                    .Where(c => c.Date.Date == hoy)
+                    .OrderByDescending(c => c.CashClosingId)
+                    .ToListAsync();
+
+                ViewBag.Usuarios = usuarios;
+                ViewBag.CajasHoy = cajasHoy;
+
                 return View(allCajas);
             }
 
@@ -37,6 +48,16 @@ namespace SistemaWebPapeleria.Controllers
                 .OrderByDescending(c => c.Date)
                 .ToListAsync();
 
+            var usuarioActual = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            ViewBag.Usuarios = new List<User> { usuarioActual };
+            ViewBag.CajasHoy = await _context.CashClosings
+                .Where(c => c.UserId == userId && c.Date.Date == hoy)
+                .OrderByDescending(c => c.CashClosingId)
+                .ToListAsync();
+
             return View(misCajas);
         }
 
@@ -44,10 +65,11 @@ namespace SistemaWebPapeleria.Controllers
         public async Task<IActionResult> Open(decimal initialAmount)
         {
             var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
+            var hoy = DateTime.Today;
 
-            // Verificar si ya tiene una caja abierta
+            // Verificar si ya tiene una caja abierta hoy
             var cajaAbierta = await _context.CashClosings
-                .AnyAsync(c => c.UserId == userId && c.ClosingAmount == 0 && c.TotalSales == 0);
+                .AnyAsync(c => c.UserId == userId && c.ClosingAmount == 0 && c.TotalSales == 0 && c.Date.Date == hoy);
 
             if (cajaAbierta)
             {
@@ -55,6 +77,23 @@ namespace SistemaWebPapeleria.Controllers
                 return RedirectToAction("Index");
             }
 
+            // Si hay una caja cerrada hoy, reabrirla
+            var cajaCerradaHoy = await _context.CashClosings
+                .FirstOrDefaultAsync(c => c.UserId == userId && c.Date.Date == hoy);
+
+            if (cajaCerradaHoy != null)
+            {
+                cajaCerradaHoy.ClosingAmount = 0;
+                cajaCerradaHoy.TotalSales = 0;
+                cajaCerradaHoy.TotalCash = 0;
+                cajaCerradaHoy.TotalYape = 0;
+                cajaCerradaHoy.TotalPlin = 0;
+                cajaCerradaHoy.TotalCard = 0;
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index");
+            }
+
+            // Si no existe ninguna caja hoy, crear una nueva
             var caja = new CashClosing
             {
                 Date = DateTime.Now,
@@ -118,6 +157,18 @@ namespace SistemaWebPapeleria.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> VerificarCaja()
+        {
+            var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
+            var hoy = DateTime.Today;
+
+            var cajaAbierta = await _context.CashClosings
+                .AnyAsync(c => c.UserId == userId && c.ClosingAmount == 0 && c.Date.Date == hoy);
+
+            return Json(new { abierta = cajaAbierta });
         }
     }
 }
