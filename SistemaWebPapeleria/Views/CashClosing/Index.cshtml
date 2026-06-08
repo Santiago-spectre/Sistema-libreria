@@ -169,12 +169,23 @@
                     @if (userRole == "Administrador")
                     {
                         <td style="padding: 12px 15px;">
-                            <form method="post" action="/CashClosing/Delete/@caja.CashClosingId" style="margin: 0;">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" onclick="return confirm('¿Seguro que quieres eliminar este registro?')" style="background: rgba(248,113,113,0.15); color: #f87171; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer;">
-                                    <i class="bi bi-trash-fill"></i>
-                                </button>
-                            </form>
+                            <div style="display: flex; gap: 8px;">
+                                @if (estaAbierta)
+                                {
+                                    <form method="post" action="/CashClosing/Close/@caja.CashClosingId" style="margin: 0;">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer;">
+                                            <i class="bi bi-lock-fill"></i> Cerrar
+                                        </button>
+                                    </form>
+                                }
+                                <form method="post" action="/CashClosing/Delete/@caja.CashClosingId" style="margin: 0;">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" onclick="return confirm('¿Seguro que quieres eliminar este registro?')" style="background: rgba(248,113,113,0.15); color: #f87171; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer;">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     }
                 </tr>

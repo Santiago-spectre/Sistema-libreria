@@ -42,17 +42,27 @@ namespace SistemaWebPapeleria.Controllers
             });
 
             var hoy = DateTime.Today;
-            ViewBag.TodaySales = await _appDbContext.Sales
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
+
+            var statsQuery = userRole == "Vendedor"
+                ? _appDbContext.Sales.Where(s => s.UserId == userId)
+                : _appDbContext.Sales;
+
+            ViewBag.TodaySales = await statsQuery
                 .Where(s => s.Date.Date == hoy)
                 .CountAsync();
 
-            ViewBag.TotalSales = await _appDbContext.Sales
+            ViewBag.TotalSales = await statsQuery
                 .Where(s => s.Date.Month == hoy.Month && s.Date.Year == hoy.Year)
                 .CountAsync();
 
-            ViewBag.AverageSales = await _appDbContext.Sales
+            ViewBag.AverageSales = await statsQuery
                 .Where(s => s.Date.Month == hoy.Month && s.Date.Year == hoy.Year)
                 .AverageAsync(s => (double?)s.Total) is double avg ? Math.Round(avg, 2) : 0;
+
+            ViewBag.UserRole = userRole;
+            ViewBag.Usuarios = await _appDbContext.Users.Where(u => u.Status).ToListAsync();
 
             return View(sales);
         }
@@ -99,6 +109,24 @@ namespace SistemaWebPapeleria.Controllers
             await _appDbContext.SaveChangesAsync();
 
             return Ok();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSaleStats(int? userId)
+        {
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole != "Administrador") return Forbid();
+
+            var hoy = DateTime.Today;
+            var query = _appDbContext.Sales.AsQueryable();
+            if (userId.HasValue) query = query.Where(s => s.UserId == userId.Value);
+
+            var todaySales = await query.Where(s => s.Date.Date == hoy).CountAsync();
+            var totalSales = await query.Where(s => s.Date.Month == hoy.Month && s.Date.Year == hoy.Year).CountAsync();
+            var averageSales = await query.Where(s => s.Date.Month == hoy.Month && s.Date.Year == hoy.Year)
+                .AverageAsync(s => (double?)s.Total) is double avg ? Math.Round(avg, 2) : 0;
+
+            return Json(new { todaySales, totalSales, averageSales });
         }
     }
 }

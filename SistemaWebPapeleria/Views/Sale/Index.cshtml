@@ -308,6 +308,20 @@
     </style>
 }
 
+<!-- Filtro admin-->
+@if (ViewBag.UserRole == "Administrador")
+{
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+        <select id="filtroUsuarioVentas" onchange="aplicarFiltroVentas()" style="padding: 10px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 13px; outline: none;">
+            <option value="">Todos</option>
+            @foreach (var user in ViewBag.Usuarios)
+            {
+                <option value="@user.UserId">@user.Name @user.LastName</option>
+            }
+        </select>
+    </div>
+}
+
 <!-- TARJETAS -->
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px;">
 
@@ -315,7 +329,7 @@
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
             <div>
                 <p style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Ventas de Hoy</p>
-                <h3 style="color: #34d399; font-size: 28px; font-weight: 700;">@ViewBag.TodaySales</h3>
+                <h3 id="statTodaySales" style="color: #34d399; font-size: 28px; font-weight: 700;">@ViewBag.TodaySales</h3>
             </div>
             <div style="background: rgba(52,211,153,0.15); padding: 12px; border-radius: 10px;">
                 <i class="bi bi-cart-check-fill" style="color: #34d399; font-size: 22px;"></i>
@@ -327,7 +341,7 @@
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
             <div>
                 <p style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Ventas Totales Mensuales</p>
-                <h3 style="color: #34d399; font-size: 28px; font-weight: 700;">@ViewBag.TotalSales</h3>
+                <h3 id="statTotalSales" style="color: #34d399; font-size: 28px; font-weight: 700;">@ViewBag.TotalSales</h3>
             </div>
             <div style="background: rgba(52,211,153,0.15); padding: 12px; border-radius: 10px;">
                 <i class="bi bi-calendar-month" style="color: #34d399; font-size: 22px;"></i>
@@ -339,7 +353,7 @@
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
             <div>
                 <p style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">Promedio de Ventas</p>
-                <h3 style="color: #34d399; font-size: 28px; font-weight: 700;">@ViewBag.AverageSales</h3>
+                <h3 id="statAverageSales" style="color: #34d399; font-size: 28px; font-weight: 700;">@ViewBag.AverageSales</h3>
             </div>
             <div style="background: rgba(52,211,153,0.15); padding: 12px; border-radius: 10px;">
                 <i class="bi bi-graph-up" style="color: #34d399; font-size: 22px;"></i>
@@ -634,5 +648,17 @@
 
         // Cargar grid al iniciar
         renderGrid(productos.filter(p => p.isActive));
+        
+        async function aplicarFiltroVentas() {
+            const userId = document.getElementById('filtroUsuarioVentas')?.value ?? '';
+            const url = '/Sale/GetSaleStats' + (userId ? '?userId=' + userId : '');
+
+            const res = await fetch(url);
+            const data = await res.json();
+
+            document.getElementById('statTodaySales').textContent = data.todaySales;
+            document.getElementById('statTotalSales').textContent = data.totalSales;
+            document.getElementById('statAverageSales').textContent = data.averageSales;
+        }
     </script>
 }
