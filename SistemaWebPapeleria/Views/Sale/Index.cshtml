@@ -640,9 +640,10 @@
                 document.getElementById('descuento').value = '0';
                 document.getElementById('emitirComprobante').checked = false;
                 actualizarTotales();
-                alert('✅ Venta registrada correctamente.');
+                sessionStorage.setItem('toastPendiente', JSON.stringify({ mensaje: 'Venta registrada correctamente.', tipo: 'success' }));
+                location.reload();
             } else {
-                alert('❌ Error al registrar la venta. Intenta de nuevo.');
+                showToast('Error al registrar la venta. Intenta de nuevo.', 'error');
             }
         }
 

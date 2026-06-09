@@ -179,6 +179,54 @@
         @RenderBody()
     </div>
 
+    <!-- TOAST NOTIFICATION -->
+    <div id="toastContainer" style="position: fixed; bottom: 30px; right: 30px; z-index: 99999; display: flex; flex-direction: column; gap: 10px;"></div>
+
+    <style>
+            @@keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+    </style>
+
+    <script>
+            function showToast(mensaje, tipo = 'success') {
+                const container = document.getElementById('toastContainer');
+                const colores = {
+                    success: { bg: 'rgba(52,211,153,0.15)', border: 'rgba(52,211,153,0.3)', color: '#34d399', icon: 'bi-check-circle-fill' },
+                    error:   { bg: 'rgba(248,113,113,0.15)', border: 'rgba(248,113,113,0.3)', color: '#f87171', icon: 'bi-x-circle-fill' },
+                    warning: { bg: 'rgba(251,191,36,0.15)',  border: 'rgba(251,191,36,0.3)',  color: '#fbbf24', icon: 'bi-exclamation-triangle-fill' },
+                    info:    { bg: 'rgba(99,102,241,0.15)',  border: 'rgba(99,102,241,0.3)',  color: '#818cf8', icon: 'bi-info-circle-fill' },
+                };
+                const c = colores[tipo] || colores.success;
+                const toast = document.createElement('div');
+                toast.style.cssText = `background: ${c.bg}; border: 1px solid ${c.border}; border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; min-width: 280px; max-width: 380px; backdrop-filter: blur(10px); animation: slideIn 0.3s ease;`;
+                toast.innerHTML = `
+                    <i class="bi ${c.icon}" style="color: ${c.color}; font-size: 18px; flex-shrink: 0;"></i>
+                    <span style="color: #ffffff; font-size: 13px; flex: 1;">${mensaje}</span>
+                    <button onclick="this.parentElement.remove()" style="background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 16px; padding: 0; line-height: 1;">×</button>
+                `;
+                container.appendChild(toast);
+                setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const pendiente = sessionStorage.getItem('toastPendiente');
+                if (pendiente) {
+                    sessionStorage.removeItem('toastPendiente');
+                    const { mensaje, tipo } = JSON.parse(pendiente);
+                    setTimeout(() => showToast(mensaje, tipo), 300);
+                }
+            });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
