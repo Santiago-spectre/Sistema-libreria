@@ -265,7 +265,7 @@
         }
 
         function generarComprobante(saleId) {
-            alert('Generación de comprobante para venta #' + saleId + ' — próximamente disponible.');
+            window.open('/Report/GenerarComprobante/' + saleId, '_blank');
         }
 
         function descargarReporte(mes, anio) {
