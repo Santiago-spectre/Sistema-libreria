@@ -5,23 +5,34 @@ namespace SistemaWebPapeleria.Filters
 {
     public class SessionAuthFilter : ActionFilterAttribute
     {
+        private static readonly string[] _soloAdmin = new[]
+        {
+            "Product", "User", "Supplier"
+        };
+
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             var controllerName = context.RouteData.Values["controller"]?.ToString();
 
-            if(controllerName == "Login")
+            if (controllerName == "Login")
             {
                 base.OnActionExecuting(context);
                 return;
             }
 
             var userId = context.HttpContext.Session.GetString("UserId");
-            System.Diagnostics.Debug.WriteLine($"FILTRO - Controlador: {controllerName} - UserId: '{userId}'");
-
             if (string.IsNullOrEmpty(userId))
             {
-                System.Diagnostics.Debug.WriteLine("FILTRO - Redirigiendo al login");
                 context.Result = new RedirectToActionResult("Login", "Login", null);
+                return;
+            }
+
+            var userRole = context.HttpContext.Session.GetString("UserRole");
+            if (userRole != "Administrador" && _soloAdmin.Contains(controllerName))
+            {
+                context.HttpContext.Session.SetString("AccesoNegado", "No tienes permisos para acceder a esa sección.");
+                context.Result = new RedirectToActionResult("Index", "Home", null);
+                return;
             }
 
             base.OnActionExecuting(context);
