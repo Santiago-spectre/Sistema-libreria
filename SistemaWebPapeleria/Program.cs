@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add(new SistemaWebPapeleria.Filters.SessionAuthFilter()); //aplicar filtros a todo los controladores
+    options.Filters.Add(new SistemaWebPapeleria.Filters.GlobalExceptionFilter());   //para capturar errores (manejo de errores)
 });
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();

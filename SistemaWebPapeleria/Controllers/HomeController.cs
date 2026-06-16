@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SistemaWebPapeleria.Models;
 using SistemaWebPapeleria.Data;
+using SistemaWebPapeleria.Models;
 using SistemaWebPapeleria.ViewModels;
+using System.Diagnostics;
 
 namespace SistemaWebPapeleria.Controllers
 {
@@ -152,6 +153,12 @@ namespace SistemaWebPapeleria.Controllers
                 tarjeta,
                 lastSales
             });
+        }
+
+        [HttpGet]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }
