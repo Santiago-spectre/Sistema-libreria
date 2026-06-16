@@ -38,15 +38,9 @@ namespace SistemaWebPapeleria.Controllers
             HttpContext.Session.SetString("UserName", usuario_encontrado.Name + " " + usuario_encontrado.LastName);
             HttpContext.Session.SetString("UserRole", usuario_encontrado.Role.RoleName);
 
-            switch (usuario_encontrado.Role.RoleName)
-            {
-                case "Administrador":
-                    return RedirectToAction("Administrator", "Login");
-                case "Vendedor":
-                    return RedirectToAction("Seller", "Login");
-                default:
-                    return RedirectToAction("Login", "Login");
-            }
+            TempData["Bienvenida"] = usuario_encontrado.Role.RoleName;
+
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
