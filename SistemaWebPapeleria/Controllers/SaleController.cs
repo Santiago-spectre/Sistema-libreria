@@ -4,6 +4,7 @@ using SistemaWebPapeleria.Data;
 using SistemaWebPapeleria.Models;
 using SistemaWebPapeleria.ViewModels;
 using System.Text.Json;
+using SistemaWebPapeleria.Helpers;
 
 namespace SistemaWebPapeleria.Controllers
 {
@@ -80,7 +81,7 @@ namespace SistemaWebPapeleria.Controllers
 
             var sale = new Sale
             {
-                Date = DateTime.Now,
+                Date = DateTimeHelper.AhoraEnPeru(),
                 PaymentMethod = request.PaymentMethod,
                 Discount = request.Discount,
                 ReceiptIssued = request.ReceiptIssued,

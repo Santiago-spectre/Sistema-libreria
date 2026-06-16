@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SistemaWebPapeleria.Data;
 using SistemaWebPapeleria.Models;
+using SistemaWebPapeleria.Helpers;
 
 namespace SistemaWebPapeleria.Controllers
 {
@@ -97,7 +98,7 @@ namespace SistemaWebPapeleria.Controllers
             // Si no existe ninguna caja hoy, crear una nueva
             var caja = new CashClosing
             {
-                Date = DateTime.Now,
+                Date = DateTimeHelper.AhoraEnPeru(),
                 InitialAmount = initialAmount,
                 TotalCash = 0,
                 TotalYape = 0,
