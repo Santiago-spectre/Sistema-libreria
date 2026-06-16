@@ -69,7 +69,7 @@ namespace SistemaWebPapeleria.Controllers
 
             // Verificar si ya tiene una caja abierta hoy
             var cajaAbierta = await _context.CashClosings
-                .AnyAsync(c => c.UserId == userId && c.ClosingAmount == 0 && c.TotalSales == 0 && c.Date.Date == hoy);
+                .AnyAsync(c => c.UserId == userId && c.IsOpen && c.Date.Date == hoy);
 
             if (cajaAbierta)
             {
@@ -83,6 +83,7 @@ namespace SistemaWebPapeleria.Controllers
 
             if (cajaCerradaHoy != null)
             {
+                cajaCerradaHoy.IsOpen = true;
                 cajaCerradaHoy.ClosingAmount = 0;
                 cajaCerradaHoy.TotalSales = 0;
                 cajaCerradaHoy.TotalCash = 0;
@@ -104,6 +105,7 @@ namespace SistemaWebPapeleria.Controllers
                 TotalCard = 0,
                 TotalSales = 0,
                 ClosingAmount = 0,
+                IsOpen = true,
                 UserId = userId
             };
 
@@ -138,6 +140,7 @@ namespace SistemaWebPapeleria.Controllers
             caja.TotalCard = ventas.Where(s => s.PaymentMethod == "Tarjeta").Sum(s => s.Total);
             caja.TotalSales = ventas.Sum(s => s.Total);
             caja.ClosingAmount = caja.InitialAmount + caja.TotalSales;
+            caja.IsOpen = false;
 
             await _context.SaveChangesAsync();
 
@@ -166,7 +169,7 @@ namespace SistemaWebPapeleria.Controllers
             var hoy = DateTime.Today;
 
             var cajaAbierta = await _context.CashClosings
-                .AnyAsync(c => c.UserId == userId && c.ClosingAmount == 0 && c.Date.Date == hoy);
+                .AnyAsync(c => c.UserId == userId && c.IsOpen && c.Date.Date == hoy);
 
             return Json(new { abierta = cajaAbierta });
         }

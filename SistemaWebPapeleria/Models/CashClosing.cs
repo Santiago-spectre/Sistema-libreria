@@ -28,6 +28,8 @@ namespace SistemaWebPapeleria.Models
         [Column(TypeName = "decimal(10,2)")]
         public decimal ClosingAmount { get; set; }          // Monto final al cerrar la caja
 
+        public bool IsOpen { get; set; }                    //Caja abierta o cerrada
+
         // Conexión con User (FK) — quién realizó el cierre
         public int UserId { get; set; }
         public User User { get; set; }
