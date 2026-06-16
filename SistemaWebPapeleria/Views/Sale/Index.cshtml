@@ -643,7 +643,12 @@
                 sessionStorage.setItem('toastPendiente', JSON.stringify({ mensaje: 'Venta registrada correctamente.', tipo: 'success' }));
                 location.reload();
             } else {
-                showToast('Error al registrar la venta. Intenta de nuevo.', 'error');
+                try {
+                    const error = await response.json();
+                    showToast(error.mensaje || 'Error al registrar la venta. Intenta de nuevo.', 'error');
+                } catch {
+                    showToast('Error al registrar la venta. Intenta de nuevo.', 'error');
+                }
             }
         }
 

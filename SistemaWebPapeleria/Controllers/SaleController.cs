@@ -101,6 +101,9 @@ namespace SistemaWebPapeleria.Controllers
                 var product = await _appDbContext.Products.FindAsync(item.ProductId);
                 if (product != null && !product.IsService)
                 {
+                    if (item.Quantity > product.Stock)
+                        return BadRequest(new { mensaje = $"Stock insuficiente para '{product.Name}'. Stock disponible: {product.Stock}" });
+
                     product.Stock -= item.Quantity;
                 }
             }
