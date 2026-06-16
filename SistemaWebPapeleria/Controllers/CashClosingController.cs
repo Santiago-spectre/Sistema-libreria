@@ -131,7 +131,7 @@ namespace SistemaWebPapeleria.Controllers
             // Calcular totales del día desde las ventas
             var fechaApertura = caja.Date;
             var ventas = await _context.Sales
-                .Where(s => s.UserId == caja.UserId && s.Date >= fechaApertura)
+                .Where(s => s.UserId == caja.UserId && s.Date >= fechaApertura && s.Date.Date == fechaApertura.Date)
                 .ToListAsync();
 
             caja.TotalCash = ventas.Where(s => s.PaymentMethod == "Efectivo").Sum(s => s.Total);
