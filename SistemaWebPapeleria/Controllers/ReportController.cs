@@ -231,5 +231,34 @@ namespace SistemaWebPapeleria.Controllers
 
             return File(pdf, "application/pdf", $"Comprobante-{sale.SaleId}.pdf");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSaleDetail(int id)
+        {
+            var sale = await _appDbContext.Sales
+                .Include(s => s.SaleDetails)
+                    .ThenInclude(sd => sd.Product)
+                .FirstOrDefaultAsync(s => s.SaleId == id);
+
+            if (sale == null) return NotFound();
+
+            var detalle = new
+            {
+                saleId = sale.SaleId,
+                fecha = sale.Date.ToString("dd/MM/yyyy HH:mm"),
+                paymentMethod = sale.PaymentMethod,
+                discount = sale.Discount,
+                total = sale.Total,
+                items = sale.SaleDetails.Select(d => new
+                {
+                    producto = d.Product?.Name,
+                    cantidad = d.Quantity,
+                    precioUnitario = d.UnitPrice,
+                    subtotal = d.Subtotal
+                }).ToList()
+            };
+
+            return Json(detalle);
+        }
     }
 }
