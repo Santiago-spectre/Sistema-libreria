@@ -78,43 +78,6 @@ namespace SistemaWebPapeleria.Data
                 .WithMany(u => u.Notifications)
                 .HasForeignKey(n => n.UserId);
 
-            // Configuración de precisión para campos decimales
-            modelBuilder.Entity<Product>()
-                .Property(p => p.SalePrice)
-                .HasPrecision(10, 2);
-
-            modelBuilder.Entity<Product>()
-                .Property(p => p.PurchasePrice)
-                .HasPrecision(10, 2);
-
-            modelBuilder.Entity<Sale>()
-                .Property(s => s.Total)
-                .HasPrecision(10, 2);
-
-            modelBuilder.Entity<Sale>()
-                .Property(s => s.Discount)
-                .HasPrecision(10, 2);
-
-            modelBuilder.Entity<SaleDetail>()
-                .Property(sd => sd.UnitPrice)
-                .HasPrecision(10, 2);
-
-            modelBuilder.Entity<SaleDetail>()
-                .Property(sd => sd.Subtotal)
-                .HasPrecision(10, 2);
-
-            modelBuilder.Entity<CashClosing>()
-                .Property(cc => cc.InitialAmount)
-                .HasPrecision(10, 2);
-
-            modelBuilder.Entity<CashClosing>()
-                .Property(cc => cc.TotalSales)
-                .HasPrecision(10, 2);
-
-            modelBuilder.Entity<CashClosing>()
-                .Property(cc => cc.ClosingAmount)
-                .HasPrecision(10, 2);
-
             modelBuilder.Entity<Role>().HasData(
                 new Role { RoleId = 1, RoleName = "Administrador" },
                 new Role { RoleId = 2, RoleName = "Vendedor" }
