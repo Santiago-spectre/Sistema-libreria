@@ -59,6 +59,7 @@ namespace SistemaWebPapeleria.Controllers
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
+            Response.Cookies.Delete(".AspNetCore.Session");
             return RedirectToAction("Login", "Login");
         }
     }

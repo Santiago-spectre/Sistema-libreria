@@ -6,7 +6,10 @@ using DinkToPdf.Contracts;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new SistemaWebPapeleria.Filters.SessionAuthFilter()); //aplicar filtros a todo los controladores
+});
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
 
@@ -29,9 +32,8 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseRouting();
-
 app.UseSession();
+app.UseRouting();
 app.UseAuthorization();
 
 app.MapStaticAssets();

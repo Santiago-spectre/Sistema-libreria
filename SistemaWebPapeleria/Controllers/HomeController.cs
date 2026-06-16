@@ -17,6 +17,10 @@ namespace SistemaWebPapeleria.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+            var sessionCheck = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(sessionCheck))
+                return RedirectToAction("Login", "Login");
+
             var userRole = HttpContext.Session.GetString("UserRole");
             var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
             var esVendedor = userRole == "Vendedor";
