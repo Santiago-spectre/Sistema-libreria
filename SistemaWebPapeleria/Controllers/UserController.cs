@@ -38,6 +38,7 @@ namespace SistemaWebPapeleria.Controllers
             if (userRole != "Administrador") return Forbid();
 
             user.Status = true;
+            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
@@ -58,7 +59,7 @@ namespace SistemaWebPapeleria.Controllers
             existing.RoleId = user.RoleId;
 
             if (!string.IsNullOrEmpty(user.Password))
-                existing.Password = user.Password;
+                existing.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");

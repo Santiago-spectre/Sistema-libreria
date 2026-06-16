@@ -25,10 +25,10 @@ namespace SistemaWebPapeleria.Controllers
         {
             User? usuario_encontrado = await _appDbContext.Users
                 .Include(u => u.Role)
-                .Where(u => u.Email == model.Email && u.Password == model.Password)
+                .Where(u => u.Email == model.Email)
                 .FirstOrDefaultAsync();
 
-            if (usuario_encontrado == null)
+            if (usuario_encontrado == null || !BCrypt.Net.BCrypt.Verify(model.Password, usuario_encontrado.Password))
             {
                 ViewData["Mensaje"] = "Correo o contraseña incorrectos";
                 return View();
