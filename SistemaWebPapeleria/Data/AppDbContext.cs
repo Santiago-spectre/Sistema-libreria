@@ -18,6 +18,8 @@ namespace SistemaWebPapeleria.Data
         public DbSet<Receipt> Receipts { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Return> Returns { get; set; }
+        public DbSet<ReturnDetail> ReturnDetails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -77,6 +79,34 @@ namespace SistemaWebPapeleria.Data
                 .HasOne(n => n.User)
                 .WithMany(u => u.Notifications)
                 .HasForeignKey(n => n.UserId);
+
+            // 9. Return -> Sale (M:1)
+            modelBuilder.Entity<Return>()
+                .HasOne(r => r.Sale)
+                .WithMany(s => s.Returns)
+                .HasForeignKey(r => r.SaleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // 10. Return -> User (M:1)
+            modelBuilder.Entity<Return>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.Returns)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // 11. ReturnDetail -> Return (M:1)
+            modelBuilder.Entity<ReturnDetail>()
+                .HasOne(rd => rd.Return)
+                .WithMany(r => r.ReturnDetails)
+                .HasForeignKey(rd => rd.ReturnId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // 12. ReturnDetail -> Product (M:1)
+            modelBuilder.Entity<ReturnDetail>()
+                .HasOne(rd => rd.Product)
+                .WithMany(p => p.ReturnDetails)
+                .HasForeignKey(rd => rd.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Role>().HasData(
                 new Role { RoleId = 1, RoleName = "Administrador" },

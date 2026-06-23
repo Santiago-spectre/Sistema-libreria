@@ -203,6 +203,10 @@
                                 style="background: rgba(52,211,153,0.15); color: #34d399; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                             <i class="bi bi-eye-fill"></i> Ver detalle
                         </button>
+                        <button onclick="abrirDevolucion(@sale.SaleId)"
+                                style="background: rgba(248,113,113,0.15); color: #f87171; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="bi bi-arrow-return-left"></i> Devolución
+                        </button>
                         <button onclick="generarComprobante(@sale.SaleId)"
                                 style="background: rgba(99,102,241,0.15); color: #818cf8; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                             <i class="bi bi-file-earmark-text-fill"></i> Generar Comprobante
@@ -276,6 +280,34 @@
     </div>
 </div>
 
+<!-- MODAL DEVOLUCIÓN -->
+<div id="modalDevolucion" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+    <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:30px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <h5 style="color:#ffffff;font-weight:700;margin:0;">Devolución — Venta <span id="devSaleId" style="color:#f87171;"></span></h5>
+            <button onclick="cerrarDevolucion()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:22px;cursor:pointer;">×</button>
+        </div>
+        <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:15px;">Selecciona los productos y la cantidad a devolver:</p>
+        <table style="width:100%;border-collapse:collapse;">
+            <thead>
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.07);">
+                    <th style="color:rgba(255,255,255,0.4);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:10px 15px;text-align:left;">Producto</th>
+                    <th style="color:rgba(255,255,255,0.4);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:10px 15px;text-align:center;">Vendido</th>
+                    <th style="color:rgba(255,255,255,0.4);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:10px 15px;text-align:center;">A devolver</th>
+                </tr>
+            </thead>
+            <tbody id="devItems"></tbody>
+        </table>
+        <div style="margin-top:15px;">
+            <label style="color:rgba(255,255,255,0.5);font-size:13px;display:block;margin-bottom:6px;">Motivo (opcional)</label>
+            <input id="devMotivo" type="text" placeholder="Ej: Producto defectuoso..." style="width:100%;padding:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:13px;outline:none;box-sizing:border-box;" />
+        </div>
+        <button onclick="confirmarDevolucion()" style="width:100%;margin-top:20px;padding:13px;background:linear-gradient(135deg,#dc2626,#f87171);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;">
+            <i class="bi bi-arrow-return-left"></i> Confirmar Devolución
+        </button>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         function filtrar() {
@@ -330,6 +362,71 @@
 
         function cerrarModal() {
             document.getElementById('modalDetalle').style.display = 'none';
+        }
+
+        let devSaleIdActual = null;
+        let devItemsActual = [];
+
+        async function abrirDevolucion(saleId) {
+            const res = await fetch('/Report/GetSaleDetail/' + saleId);
+            const data = await res.json();
+
+            devSaleIdActual = saleId;
+            devItemsActual = data.items;
+
+            document.getElementById('devSaleId').textContent = '#' + data.saleId;
+            document.getElementById('devMotivo').value = '';
+
+            document.getElementById('devItems').innerHTML = data.items.map((i, index) => `
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                    <td style="color:#ffffff;font-size:13px;padding:12px 15px;">${i.producto}</td>
+                    <td style="color:rgba(255,255,255,0.6);font-size:13px;padding:12px 15px;text-align:center;">${i.cantidad}</td>
+                    <td style="padding:12px 15px;text-align:center;">
+                        <input type="number" id="devCantidad_${index}" min="0" max="${i.cantidad}" value="0"
+                               style="width:60px;padding:5px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:13px;text-align:center;outline:none;" />
+                    </td>
+                </tr>
+            `).join('');
+
+            document.getElementById('modalDevolucion').style.display = 'flex';
+        }
+
+        function cerrarDevolucion() {
+            document.getElementById('modalDevolucion').style.display = 'none';
+        }
+
+        async function confirmarDevolucion() {
+            const motivo = document.getElementById('devMotivo').value;
+            const items = devItemsActual
+                .map((i, index) => ({
+                    productId: i.productId,
+                    quantity: parseInt(document.getElementById('devCantidad_' + index).value) || 0
+                }))
+                .filter(i => i.quantity > 0);
+
+            if (items.length === 0) {
+                alert('Debes ingresar al menos una cantidad a devolver.');
+                return;
+            }
+
+            const res = await fetch('/Return/Create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ saleId: devSaleIdActual, reason: motivo, items })
+            });
+
+            if (res.ok) {
+                cerrarDevolucion();
+                sessionStorage.setItem('toastPendiente', JSON.stringify({ mensaje: 'Devolución registrada correctamente.', tipo: 'success' }));
+                location.reload();
+            } else {
+                try {
+                    const error = await res.json();
+                    alert(error.mensaje || 'Error al registrar la devolución.');
+                } catch {
+                    alert('Error al registrar la devolución.');
+                }
+            }
         }
     </script>
 }

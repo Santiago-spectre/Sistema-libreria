@@ -27,5 +27,7 @@ namespace SistemaWebPapeleria.Models
         //relacion: una venta puede tener un comprobante
         public Receipt Receipt { get; set; }
 
+        public List<Return> Returns { get; set; } = new();
+
     }
 }

@@ -31,14 +31,12 @@ namespace SistemaWebPapeleria.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CashClosingId"));
 
                     b.Property<decimal>("ClosingAmount")
-                        .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("InitialAmount")
-                        .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
                     b.Property<bool>("IsOpen")
@@ -54,7 +52,6 @@ namespace SistemaWebPapeleria.Migrations
                         .HasColumnType("decimal(10,2)");
 
                     b.Property<decimal>("TotalSales")
-                        .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
                     b.Property<decimal>("TotalYape")
@@ -163,11 +160,9 @@ namespace SistemaWebPapeleria.Migrations
                         .HasColumnType("nvarchar(150)");
 
                     b.Property<decimal>("PurchasePrice")
-                        .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
                     b.Property<decimal>("SalePrice")
-                        .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
                     b.Property<int>("Stock")
@@ -212,6 +207,65 @@ namespace SistemaWebPapeleria.Migrations
                     b.ToTable("Receipts");
                 });
 
+            modelBuilder.Entity("SistemaWebPapeleria.Models.Return", b =>
+                {
+                    b.Property<int>("ReturnId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReturnId"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<int>("SaleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ReturnId");
+
+                    b.HasIndex("SaleId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Returns");
+                });
+
+            modelBuilder.Entity("SistemaWebPapeleria.Models.ReturnDetail", b =>
+                {
+                    b.Property<int>("ReturnDetailId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReturnDetailId"));
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReturnId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.HasKey("ReturnDetailId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ReturnId");
+
+                    b.ToTable("ReturnDetails");
+                });
+
             modelBuilder.Entity("SistemaWebPapeleria.Models.Role", b =>
                 {
                     b.Property<int>("RoleId")
@@ -253,7 +307,6 @@ namespace SistemaWebPapeleria.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("Discount")
-                        .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
                     b.Property<string>("PaymentMethod")
@@ -265,7 +318,6 @@ namespace SistemaWebPapeleria.Migrations
                         .HasColumnType("bit");
 
                     b.Property<decimal>("Total")
-                        .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
                     b.Property<int>("UserId")
@@ -296,11 +348,9 @@ namespace SistemaWebPapeleria.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Subtotal")
-                        .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
                     b.Property<decimal>("UnitPrice")
-                        .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
                     b.HasKey("SaleDetailId");
@@ -438,6 +488,44 @@ namespace SistemaWebPapeleria.Migrations
                     b.Navigation("Sale");
                 });
 
+            modelBuilder.Entity("SistemaWebPapeleria.Models.Return", b =>
+                {
+                    b.HasOne("SistemaWebPapeleria.Models.Sale", "Sale")
+                        .WithMany("Returns")
+                        .HasForeignKey("SaleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SistemaWebPapeleria.Models.User", "User")
+                        .WithMany("Returns")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Sale");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SistemaWebPapeleria.Models.ReturnDetail", b =>
+                {
+                    b.HasOne("SistemaWebPapeleria.Models.Product", "Product")
+                        .WithMany("ReturnDetails")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SistemaWebPapeleria.Models.Return", "Return")
+                        .WithMany("ReturnDetails")
+                        .HasForeignKey("ReturnId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Return");
+                });
+
             modelBuilder.Entity("SistemaWebPapeleria.Models.Sale", b =>
                 {
                     b.HasOne("SistemaWebPapeleria.Models.User", "User")
@@ -486,7 +574,14 @@ namespace SistemaWebPapeleria.Migrations
 
             modelBuilder.Entity("SistemaWebPapeleria.Models.Product", b =>
                 {
+                    b.Navigation("ReturnDetails");
+
                     b.Navigation("SaleDetails");
+                });
+
+            modelBuilder.Entity("SistemaWebPapeleria.Models.Return", b =>
+                {
+                    b.Navigation("ReturnDetails");
                 });
 
             modelBuilder.Entity("SistemaWebPapeleria.Models.Role", b =>
@@ -498,6 +593,8 @@ namespace SistemaWebPapeleria.Migrations
                 {
                     b.Navigation("Receipt")
                         .IsRequired();
+
+                    b.Navigation("Returns");
 
                     b.Navigation("SaleDetails");
                 });
@@ -512,6 +609,8 @@ namespace SistemaWebPapeleria.Migrations
                     b.Navigation("CashClosings");
 
                     b.Navigation("Notifications");
+
+                    b.Navigation("Returns");
 
                     b.Navigation("Sales");
                 });

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SistemaWebPapeleria.Migrations
 {
     /// <inheritdoc />
-    public partial class MigracionInicial : Migration
+    public partial class Migracioninicial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -89,8 +89,8 @@ namespace SistemaWebPapeleria.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    SalePrice = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
-                    PurchasePrice = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
+                    SalePrice = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    PurchasePrice = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     Stock = table.Column<int>(type: "int", nullable: false),
                     MinimumStock = table.Column<int>(type: "int", nullable: false),
                     IsService = table.Column<bool>(type: "bit", nullable: false),
@@ -121,13 +121,14 @@ namespace SistemaWebPapeleria.Migrations
                     CashClosingId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    InitialAmount = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
+                    InitialAmount = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     TotalCash = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     TotalYape = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     TotalPlin = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     TotalCard = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    TotalSales = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
-                    ClosingAmount = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
+                    TotalSales = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    ClosingAmount = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    IsOpen = table.Column<bool>(type: "bit", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -172,9 +173,9 @@ namespace SistemaWebPapeleria.Migrations
                     SaleId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Total = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
+                    Total = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     PaymentMethod = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Discount = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
+                    Discount = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     ReceiptIssued = table.Column<bool>(type: "bit", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -211,14 +212,42 @@ namespace SistemaWebPapeleria.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Returns",
+                columns: table => new
+                {
+                    ReturnId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Reason = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    SaleId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Returns", x => x.ReturnId);
+                    table.ForeignKey(
+                        name: "FK_Returns_Sales_SaleId",
+                        column: x => x.SaleId,
+                        principalTable: "Sales",
+                        principalColumn: "SaleId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Returns_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SaleDetails",
                 columns: table => new
                 {
                     SaleDetailId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
-                    Subtotal = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    Subtotal = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     SaleId = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -236,6 +265,34 @@ namespace SistemaWebPapeleria.Migrations
                         column: x => x.SaleId,
                         principalTable: "Sales",
                         principalColumn: "SaleId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ReturnDetails",
+                columns: table => new
+                {
+                    ReturnDetailId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    ReturnId = table.Column<int>(type: "int", nullable: false),
+                    ProductId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReturnDetails", x => x.ReturnDetailId);
+                    table.ForeignKey(
+                        name: "FK_ReturnDetails_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "ProductId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ReturnDetails_Returns_ReturnId",
+                        column: x => x.ReturnId,
+                        principalTable: "Returns",
+                        principalColumn: "ReturnId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -275,6 +332,26 @@ namespace SistemaWebPapeleria.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_ReturnDetails_ProductId",
+                table: "ReturnDetails",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReturnDetails_ReturnId",
+                table: "ReturnDetails",
+                column: "ReturnId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Returns_SaleId",
+                table: "Returns",
+                column: "SaleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Returns_UserId",
+                table: "Returns",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SaleDetails_ProductId",
                 table: "SaleDetails",
                 column: "ProductId");
@@ -308,7 +385,13 @@ namespace SistemaWebPapeleria.Migrations
                 name: "Receipts");
 
             migrationBuilder.DropTable(
+                name: "ReturnDetails");
+
+            migrationBuilder.DropTable(
                 name: "SaleDetails");
+
+            migrationBuilder.DropTable(
+                name: "Returns");
 
             migrationBuilder.DropTable(
                 name: "Products");

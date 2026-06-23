@@ -30,5 +30,7 @@ namespace SistemaWebPapeleria.Models
         
         //relacion: un producto aparece en muchos detallesVenta
         public ICollection<SaleDetail> SaleDetails { get; set; }
+
+        public List<ReturnDetail> ReturnDetails { get; set; } = new();
     }
 }

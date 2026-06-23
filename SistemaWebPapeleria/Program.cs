@@ -13,6 +13,7 @@ builder.Services.AddControllersWithViews(options =>
 });
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<SistemaWebPapeleria.Services.EmailService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {

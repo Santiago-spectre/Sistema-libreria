@@ -4,9 +4,6 @@ using SistemaWebPapeleria.Data;
 using SistemaWebPapeleria.Models;
 using DinkToPdf;
 using DinkToPdf.Contracts;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewEngines;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace SistemaWebPapeleria.Controllers
 {
@@ -251,6 +248,7 @@ namespace SistemaWebPapeleria.Controllers
                 total = sale.Total,
                 items = sale.SaleDetails.Select(d => new
                 {
+                    ProductId = d.ProductId,
                     producto = d.Product?.Name,
                     cantidad = d.Quantity,
                     precioUnitario = d.UnitPrice,

@@ -28,5 +28,7 @@ namespace SistemaWebPapeleria.Models
 
         //relacion un usuario recibe muchas notificaciones
         public ICollection<Notification> Notifications { get; set; }
+
+        public List<Return> Returns { get; set; } = new();
     }
 }

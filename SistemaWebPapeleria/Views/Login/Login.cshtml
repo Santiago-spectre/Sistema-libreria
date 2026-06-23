@@ -79,6 +79,14 @@
         <span style="color: #ffffff; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; font-size: 14px;">Papelería Sonia</span>
     </nav>
     <div class="card">
+
+        @if (TempData["SuccessRecover"] != null)
+        {
+            <div style="background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.3); border-radius:10px; color:#34d399; font-size:13px; padding:12px 15px; margin-bottom:15px; text-align:center;">
+                <i class="bi bi-check-circle-fill me-2"></i>¡Contraseña restablecida correctamente! Ya puedes iniciar sesión.
+            </div>
+        }
+
         <div style="text-align: center; margin-bottom: 25px;">
             <h4 style="color: #ffffff; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; font-size: 28px;">
                 Iniciar Sesión
@@ -122,6 +130,14 @@
                 </div>
             }
         </form>
+
+        <div style="text-align: center; margin-top: 15px;">
+            <a href="/login/RecoverPassword" style="color: rgba(99, 102, 241, 0.8); font-size: 13px; text-decoration: none; letter-spacing: 0.5px;">
+                ¿Has olvidado tu contraseña?
+            </a>
+        </div>
     </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
