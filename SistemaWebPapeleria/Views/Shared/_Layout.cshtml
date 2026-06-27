@@ -131,6 +131,124 @@
             background-position: right 15px center;
             padding-right: 40px !important;
         }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .topbar-bienvenida h4 {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+        .topbar-bienvenida p {
+            color: rgba(255,255,255,0.4);
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .topbar-derecha {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .bell-wrapper {
+            position: relative;
+            cursor: pointer;
+        }
+        .bell-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #f87171;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 50%;
+            min-width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 3px;
+        }
+        .bell-dropdown {
+            position: absolute;
+            top: 35px;
+            right: 0;
+            width: 340px;
+            max-height: 420px;
+            overflow-y: auto;
+            background: #1a1a2e;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            z-index: 2000;
+            display: none;
+        }
+        .bell-dropdown.show {
+            display: block;
+        }
+        .bell-dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .bell-dropdown-header span {
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .bell-dropdown-header button {
+            background: none;
+            border: none;
+            color: #818cf8;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .notif-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            cursor: pointer;
+        }
+        .notif-item:hover {
+            background: rgba(255,255,255,0.03);
+        }
+        .notif-item.unread {
+            background: rgba(99,102,241,0.07);
+        }
+        .notif-item p.title {
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        .notif-item p.msg {
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        .notif-item p.time {
+            color: rgba(255,255,255,0.3);
+            font-size: 11px;
+        }
+        .topbar-usuario {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .topbar-usuario span {
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+        }
     </style>
     @await RenderSectionAsync("Styles", required: false)
 </head>
@@ -145,37 +263,100 @@
             </div>
         </div>
         <div class="sidebar-menu">
+            <a href="/Home/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Home" ? "active" : "")"><i class="bi bi-house-fill"></i> Dashboard</a>
+            <a href="/Sale/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Sale" ? "active" : "")"><i class="bi bi-cart-fill"></i> Ventas</a>
+            <a href="/CashClosing/Index" class="menu-item @(ViewData["Active"]?.ToString() == "CashClosing" ? "active" : "")"><i class="bi bi-cash-stack"></i> Caja General</a>
+            <a href="/Report/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Report" ? "active" : "")"><i class="bi bi-bar-chart-fill"></i> Reportes</a>
+
             @if (HttpContextAccessor.HttpContext.Session.GetString("UserRole") == "Administrador")
             {
-                <a href="/Home/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Home" ? "active" : "")"><i class="bi bi-house-fill"></i> Dashboard</a>
                 <a href="/Product/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Product" ? "active" : "")"><i class="bi bi-box-seam-fill"></i> Productos</a>
-                <a href="/Sale/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Sale" ? "active" : "")"><i class="bi bi-cart-fill"></i> Ventas</a>
                 <a href="/Supplier/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Supplier" ? "active" : "")"><i class="bi bi-truck"></i> Proveedores</a>
-                <a href="/CashClosing/Index" class="menu-item @(ViewData["Active"]?.ToString() == "CashClosing" ? "active" : "")"><i class="bi bi-cash-stack"></i> Caja General</a>
                 <a href="/User/Index" class="menu-item @(ViewData["Active"]?.ToString() == "User" ? "active" : "")"><i class="bi bi-person-fill"></i> Usuarios</a>
-                <a href="/Report/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Report" ? "active" : "")"><i class="bi bi-bar-chart-fill"></i> Reportes</a>
-                <a href="/Config/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Config" ? "active" : "")"><i class="bi bi-gear-fill"></i> Configuración</a>
             }
-            else if (HttpContextAccessor.HttpContext.Session.GetString("UserRole") == "Vendedor")
-            {
-                <a href="/Home/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Home" ? "active" : "")"><i class="bi bi-house-fill"></i> Dashboard</a>
-                <a href="/Sale/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Sale" ? "active" : "")"><i class="bi bi-cart-fill"></i> Ventas</a>
-                <a href="/CashClosing/Index" class="menu-item @(ViewData["Active"]?.ToString() == "CashClosing" ? "active" : "")"><i class="bi bi-cash-stack"></i> Caja General</a>
-                <a href="/Report/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Report" ? "active" : "")"><i class="bi bi-bar-chart-fill"></i> Reportes</a>
-                <a href="/Config/Index" class="menu-item @(ViewData["Active"]?.ToString() == "Config" ? "active" : "")"><i class="bi bi-gear-fill"></i> Configuración</a>
-            }
-        </div>
-        <div class="sidebar-bottom">
-            <div class="sidebar-profile">
-                <i class="bi bi-person-circle" style="color: #6366f1; font-size: 32px;"></i>
-                <span>@HttpContextAccessor.HttpContext.Session.GetString("UserName")</span>
-            </div>
-            <a href="/Login/Logout" class="logout-btn"><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a>
         </div>
     </div>
 
     <!-- Contenido Principal -->
     <div class="main-content">
+        <!-- BARRA SUPERIOR -->
+        <div class="topbar">
+            <div class="topbar-bienvenida">
+                <p id="fechaHoraActual"></p>
+                <h4>Bienvenido, <span style="color: #6366f1;">@HttpContextAccessor.HttpContext.Session.GetString("UserName")</span></h4>
+            </div>
+            <div class="topbar-derecha">
+                <div class="bell-wrapper" onclick="toggleNotificaciones()">
+                    <i class="bi bi-bell-fill" style="color: rgba(255,255,255,0.6); font-size: 20px;"></i>
+                    <span id="bellBadge" class="bell-badge" style="display: none;">0</span>
+
+                    <div id="bellDropdown" class="bell-dropdown" onclick="event.stopPropagation()">
+                        <div class="bell-dropdown-header">
+                            <span>Notificaciones</span>
+                            <button onclick="marcarTodasLeidas()">Marcar todas como leídas</button>
+                        </div>
+                        <div id="notifList">
+                            <p style="color: rgba(255,255,255,0.3); font-size: 12px; text-align: center; padding: 20px;">Cargando...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bell-wrapper" onclick="toggleMenuUsuario()">
+                    <div class="topbar-usuario">
+                        <i class="bi bi-person-circle" style="color: #6366f1; font-size: 24px;"></i>
+                        <span>@HttpContextAccessor.HttpContext.Session.GetString("UserName")</span>
+                        <i class="bi bi-chevron-down" style="color: rgba(255,255,255,0.4); font-size: 11px;"></i>
+                    </div>
+
+                    <div id="menuUsuarioDropdown" class="bell-dropdown" style="width: 200px;" onclick="event.stopPropagation()">
+                        <div class="notif-item" onclick="abrirModalPerfil()">
+                            <i class="bi bi-person-fill" style="color: #6366f1; margin-right: 8px;"></i>
+                            <span style="color: #ffffff; font-size: 13px;">Mi Perfil</span>
+                        </div>
+                        <a href="/Login/Logout" style="text-decoration: none;">
+                            <div class="notif-item" style="color: #ff5050;">
+                                <i class="bi bi-box-arrow-left" style="margin-right: 8px;"></i>
+                                <span style="font-size: 13px;">Cerrar Sesión</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL MI PERFIL -->
+        <div id="modalMiPerfil" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; align-items: center; justify-content: center;">
+            <div style="background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 35px; width: 100%; max-width: 420px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h5 style="color: #ffffff; font-weight: 700; font-size: 18px; margin: 0;">Mi Perfil</h5>
+                    <button onclick="document.getElementById('modalMiPerfil').style.display='none'" style="background: none; border: none; color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer;">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <form id="formMiPerfil" onsubmit="guardarPerfil(event)">
+                    <div style="margin-bottom: 18px;">
+                        <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Nombre</label>
+                        <input type="text" id="perfilNombre" required style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                    </div>
+                    <div style="margin-bottom: 18px;">
+                        <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Apellido</label>
+                        <input type="text" id="perfilApellido" required style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                    </div>
+                    <div style="margin-bottom: 18px;">
+                        <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Correo</label>
+                        <input type="email" id="perfilEmail" required style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                    </div>
+                    <div style="margin-bottom: 18px;">
+                        <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Nueva contraseña (opcional)</label>
+                        <input type="password" id="perfilPassword" placeholder="Dejar en blanco para no cambiarla" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                    </div>
+                    <button type="submit" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; letter-spacing: 1px; cursor: pointer;">
+                        <i class="bi bi-check-lg"></i> Guardar Cambios
+                    </button>
+                </form>
+            </div>
+        </div>
+
         @RenderBody()
     </div>
 
@@ -183,48 +364,190 @@
     <div id="toastContainer" style="position: fixed; bottom: 30px; right: 30px; z-index: 99999; display: flex; flex-direction: column; gap: 10px;"></div>
 
     <style>
-            @@keyframes slideIn {
-                from {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
+        @@keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
             }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
     </style>
 
     <script>
-            function showToast(mensaje, tipo = 'success') {
-                const container = document.getElementById('toastContainer');
-                const colores = {
-                    success: { bg: 'rgba(52,211,153,0.15)', border: 'rgba(52,211,153,0.3)', color: '#34d399', icon: 'bi-check-circle-fill' },
-                    error:   { bg: 'rgba(248,113,113,0.15)', border: 'rgba(248,113,113,0.3)', color: '#f87171', icon: 'bi-x-circle-fill' },
-                    warning: { bg: 'rgba(251,191,36,0.15)',  border: 'rgba(251,191,36,0.3)',  color: '#fbbf24', icon: 'bi-exclamation-triangle-fill' },
-                    info:    { bg: 'rgba(99,102,241,0.15)',  border: 'rgba(99,102,241,0.3)',  color: '#818cf8', icon: 'bi-info-circle-fill' },
-                };
-                const c = colores[tipo] || colores.success;
-                const toast = document.createElement('div');
-                toast.style.cssText = `background: ${c.bg}; border: 1px solid ${c.border}; border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; min-width: 280px; max-width: 380px; backdrop-filter: blur(10px); animation: slideIn 0.3s ease;`;
-                toast.innerHTML = `
-                    <i class="bi ${c.icon}" style="color: ${c.color}; font-size: 18px; flex-shrink: 0;"></i>
-                    <span style="color: #ffffff; font-size: 13px; flex: 1;">${mensaje}</span>
-                    <button onclick="this.parentElement.remove()" style="background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 16px; padding: 0; line-height: 1;">×</button>
-                `;
-                container.appendChild(toast);
-                setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
+        function showToast(mensaje, tipo = 'success') {
+            const container = document.getElementById('toastContainer');
+            const colores = {
+                success: { bg: 'rgba(52,211,153,0.15)', border: 'rgba(52,211,153,0.3)', color: '#34d399', icon: 'bi-check-circle-fill' },
+                error:   { bg: 'rgba(248,113,113,0.15)', border: 'rgba(248,113,113,0.3)', color: '#f87171', icon: 'bi-x-circle-fill' },
+                warning: { bg: 'rgba(251,191,36,0.15)',  border: 'rgba(251,191,36,0.3)',  color: '#fbbf24', icon: 'bi-exclamation-triangle-fill' },
+                info:    { bg: 'rgba(99,102,241,0.15)',  border: 'rgba(99,102,241,0.3)',  color: '#818cf8', icon: 'bi-info-circle-fill' },
+            };
+            const c = colores[tipo] || colores.success;
+            const toast = document.createElement('div');
+            toast.style.cssText = `background: ${c.bg}; border: 1px solid ${c.border}; border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; min-width: 280px; max-width: 380px; backdrop-filter: blur(10px); animation: slideIn 0.3s ease;`;
+            toast.innerHTML = `
+                <i class="bi ${c.icon}" style="color: ${c.color}; font-size: 18px; flex-shrink: 0;"></i>
+                <span style="color: #ffffff; font-size: 13px; flex: 1;">${mensaje}</span>
+                <button onclick="this.parentElement.remove()" style="background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 16px; padding: 0; line-height: 1;">×</button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 4000);
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const pendiente = sessionStorage.getItem('toastPendiente');
+            if (pendiente) {
+                sessionStorage.removeItem('toastPendiente');
+                const { mensaje, tipo } = JSON.parse(pendiente);
+                setTimeout(() => showToast(mensaje, tipo), 300);
             }
+        });
+    </script>
 
-            document.addEventListener('DOMContentLoaded', () => {
-                const pendiente = sessionStorage.getItem('toastPendiente');
-                if (pendiente) {
-                    sessionStorage.removeItem('toastPendiente');
-                    const { mensaje, tipo } = JSON.parse(pendiente);
-                    setTimeout(() => showToast(mensaje, tipo), 300);
+    <script>
+        // Fecha y hora en vivo
+        function actualizarFechaHora() {
+            const ahora = new Date();
+            const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            const texto = ahora.toLocaleDateString('es-PE', opciones);
+            const el = document.getElementById('fechaHoraActual');
+            if (el) el.textContent = texto.charAt(0).toUpperCase() + texto.slice(1);
+        }
+        actualizarFechaHora();
+        setInterval(actualizarFechaHora, 60000);
+        // Notificaciones
+        function toggleNotificaciones() {
+            const dropdown = document.getElementById('bellDropdown');
+            const estaAbierto = dropdown.classList.contains('show');
+            if (estaAbierto) {
+                dropdown.classList.remove('show');
+            } else {
+                dropdown.classList.add('show');
+                cargarNotificaciones();
+            }
+        }
+        
+        document.addEventListener('click', () => {
+            document.getElementById('bellDropdown')?.classList.remove('show');
+        });
+        
+        function tiempoRelativo(fechaISO) {
+            const fecha = new Date(fechaISO);
+            const ahora = new Date();
+            const segundos = Math.floor((ahora - fecha) / 1000);
+            if (segundos < 60) return 'Hace un momento';
+            if (segundos < 3600) return `Hace ${Math.floor(segundos / 60)} min`;
+            if (segundos < 86400) return `Hace ${Math.floor(segundos / 3600)} h`;
+            return fecha.toLocaleDateString('es-PE');
+        }
+        
+        async function cargarNotificaciones() {
+            try {
+                const res = await fetch('/Notification/GetRecientes');
+                const data = await res.json();
+                
+                const badge = document.getElementById('bellBadge');
+                if (data.noLeidas > 0) {
+                    badge.style.display = 'flex';
+                    badge.textContent = data.noLeidas > 9 ? '9+' : data.noLeidas;
+                } else {
+                    badge.style.display = 'none';
                 }
-            });
+                
+                const lista = document.getElementById('notifList');
+                if (data.notificaciones.length === 0) {
+                    lista.innerHTML = '<p style="color: rgba(255,255,255,0.3); font-size: 12px; text-align: center; padding: 25px;">No tienes notificaciones</p>';
+                    return;
+                }
+                
+                lista.innerHTML = data.notificaciones.map(n => `
+                    <div class="notif-item ${n.isRead ? '' : 'unread'}" onclick="marcarLeida(${n.notificationId}, this)">
+                        <p class="title">${n.title}</p>
+                        <p class="msg">${n.message}</p>
+                        <p class="time">${tiempoRelativo(n.createdAt)}</p>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('Error al cargar notificaciones', e);
+            }
+        }
+        
+        async function marcarLeida(id, elemento) {
+            elemento.classList.remove('unread');
+            await fetch('/Notification/MarcarLeida?id=' + id, { method: 'POST' });
+            cargarNotificaciones();
+        }
+        
+        async function marcarTodasLeidas() {
+            await fetch('/Notification/MarcarTodasLeidas', { method: 'POST' });
+            cargarNotificaciones();
+        }
+        
+        // Carga inicial y refresco automático cada 30 segundos
+        cargarNotificaciones();
+        setInterval(cargarNotificaciones, 30000);
+    </script>
+
+    <script>
+        // Dropdown del menú de usuario
+        function toggleMenuUsuario() {
+            const dropdown = document.getElementById('menuUsuarioDropdown');
+            const estaAbierto = dropdown.classList.contains('show');
+            document.getElementById('bellDropdown')?.classList.remove('show');
+            if (estaAbierto) {
+                dropdown.classList.remove('show');
+            } else {
+                dropdown.classList.add('show');
+            }
+        }
+        
+        document.addEventListener('click', () => {
+            document.getElementById('menuUsuarioDropdown')?.classList.remove('show');
+        });
+        
+        // Modal Mi Perfil
+        async function abrirModalPerfil() {
+            document.getElementById('menuUsuarioDropdown').classList.remove('show');
+            try {
+                const res = await fetch('/Profile/GetMisDatos');
+                const data = await res.json();
+                document.getElementById('perfilNombre').value = data.name;
+                document.getElementById('perfilApellido').value = data.lastName;
+                document.getElementById('perfilEmail').value = data.email;
+                document.getElementById('perfilPassword').value = '';
+                document.getElementById('modalMiPerfil').style.display = 'flex';
+            } catch (e) {
+                showToast('No se pudieron cargar tus datos.', 'error');
+            }
+        }
+        
+        async function guardarPerfil(event) {
+            event.preventDefault();
+            
+            const formData = new URLSearchParams();
+            formData.append('Name', document.getElementById('perfilNombre').value);
+            formData.append('LastName', document.getElementById('perfilApellido').value);
+            formData.append('Email', document.getElementById('perfilEmail').value);
+            formData.append('Password', document.getElementById('perfilPassword').value);
+            
+            try {
+                const res = await fetch('/Profile/Edit', { method: 'POST', body: formData });
+                
+                if (res.ok) {
+                    document.getElementById('modalMiPerfil').style.display = 'none';
+                    showToast('Perfil actualizado correctamente.', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    const error = await res.json();
+                    showToast(error.mensaje || 'Error al actualizar el perfil.', 'error');
+                }
+            } catch (e) {
+                showToast('Error de conexión al guardar el perfil.', 'error');
+            }
+        }
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)

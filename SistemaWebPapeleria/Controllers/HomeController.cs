@@ -9,10 +9,10 @@ namespace SistemaWebPapeleria.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly AppDbContext _appDbContext;
-        public HomeController(AppDbContext appDbContext)
+        private readonly AppDbContext _context;
+        public HomeController(AppDbContext context)
         {
-            _appDbContext = appDbContext;
+            _context = context;
         }
 
         [HttpGet]
@@ -33,7 +33,7 @@ namespace SistemaWebPapeleria.Controllers
             {
                 var day = DateTime.Today.AddDays(-i);
                 weekDays.Add(day.ToString("ddd", new System.Globalization.CultureInfo("es-PE")));
-                var q = _appDbContext.Sales.Where(s => s.Date.Date == day);
+                var q = _context.Sales.Where(s => s.Date.Date == day);
                 if (esVendedor) q = q.Where(s => s.UserId == userId);
                 var total = await q.SumAsync(s => (decimal?)s.Total) ?? 0;
                 weekSales.Add(total);
@@ -41,8 +41,8 @@ namespace SistemaWebPapeleria.Controllers
 
             // Base query según rol
             var baseQuery = esVendedor
-                ? _appDbContext.Sales.Where(s => s.UserId == userId)
-                : _appDbContext.Sales;
+                ? _context.Sales.Where(s => s.UserId == userId)
+                : _context.Sales;
 
             // Ventas por metodo de pago
             var salesEfectivo = await baseQuery.Where(s => s.PaymentMethod == "Efectivo").SumAsync(s => (decimal?)s.Total) ?? 0;
@@ -51,14 +51,14 @@ namespace SistemaWebPapeleria.Controllers
             var salesTarjeta = await baseQuery.Where(s => s.PaymentMethod == "Tarjeta").SumAsync(s => (decimal?)s.Total) ?? 0;
 
             // Productos con stock bajo
-            var lowStock = await _appDbContext.Products
+            var lowStock = await _context.Products
                 .Where(p => !p.IsService && p.IsActive && p.Stock <= p.MinimumStock)
                 .OrderBy(p => p.Stock)
                 .Take(5)
                 .ToListAsync();
 
             // Top 5 productos mas vendidos
-            var topQuery = _appDbContext.SaleDetails.AsQueryable();
+            var topQuery = _context.SaleDetails.AsQueryable();
             if (esVendedor) topQuery = topQuery.Where(sd => sd.Sale.UserId == userId);
 
             var topProducts = await topQuery
@@ -73,14 +73,14 @@ namespace SistemaWebPapeleria.Controllers
                 .ToListAsync();
 
             // Ultimas ventas
-            var lastSalesQuery = _appDbContext.Sales.Include(s => s.User).AsQueryable();
+            var lastSalesQuery = _context.Sales.Include(s => s.User).AsQueryable();
             if (esVendedor) lastSalesQuery = lastSalesQuery.Where(s => s.UserId == userId);
 
             var model = new DashboardVM
             {
-                TotalProducts = await _appDbContext.Products.CountAsync(),
+                TotalProducts = await _context.Products.CountAsync(),
                 TotalSales = await baseQuery.CountAsync(),
-                TotalUsers = await _appDbContext.Users.CountAsync(),
+                TotalUsers = await _context.Users.CountAsync(),
                 TodaySales = await baseQuery.Where(s => s.Date.Date == DateTime.Today).SumAsync(s => (decimal?)s.Total) ?? 0,
                 LastSales = await lastSalesQuery.OrderByDescending(s => s.Date).Take(5).ToListAsync(),
                 UserRole = userRole,
@@ -95,7 +95,7 @@ namespace SistemaWebPapeleria.Controllers
                 TopProducts = topProducts
             };
 
-            ViewBag.Usuarios = await _appDbContext.Users.Where(u => u.Status).ToListAsync();
+            ViewBag.Usuarios = await _context.Users.Where(u => u.Status).ToListAsync();
             return View(model);
         }
 
@@ -103,12 +103,11 @@ namespace SistemaWebPapeleria.Controllers
         public async Task<IActionResult> GetDashboardData(int? userId)
         {
             var userRole = HttpContext.Session.GetString("UserRole");
-            var currentUserId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
 
             // Solo admin puede filtrar
             if (userRole != "Administrador") return Forbid();
 
-            var query = _appDbContext.Sales.AsQueryable();
+            var query = _context.Sales.AsQueryable();
             if (userId.HasValue) query = query.Where(s => s.UserId == userId.Value);
 
             // Ventas última semana

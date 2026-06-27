@@ -3,6 +3,30 @@
     ViewData["Title"] = "Productos";
     ViewData["Active"] = "Product";
 }
+@section Styles {
+    <style>
+        .badge-low {
+            background: rgba(255,255,255,0.6);
+            color: #f87171;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+    </style>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div style="background: rgba(248,113,113,0.15); border: 1px solid #f87171; color: #f87171; padding: 12px 18px; border-radius: 10px; margin-bottom: 20px; font-size: 13px;">
+        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["Error"]
+    </div>
+}
+@if (TempData["Success"] != null)
+{
+    <div style="background: rgba(52,211,153,0.15); border: 1px solid #34d399; color: #34d399; padding: 12px 18px; border-radius: 10px; margin-bottom: 20px; font-size: 13px;">
+        <i class="bi bi-check-circle-fill"></i> @TempData["Success"]
+    </div>
+}
 
 <!-- TOPBAR -->
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
@@ -310,12 +334,12 @@
             @Html.AntiForgeryToken()
             <div style="margin-bottom: 18px;">
                 <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Nombre</label>
-                <input type="text" name="name" required placeholder="Ej: Útiles escolares"
+                <input type="text" name="Name" required placeholder="Ej: Útiles escolares"
                        style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
             </div>
             <div style="margin-bottom: 18px;">
                 <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Descripción (opcional)</label>
-                <input type="text" name="description" placeholder="Descripción de la categoría"
+                <input type="text" name="Description" placeholder="Descripción de la categoría"
                        style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
             </div>
             <button type="submit" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; cursor: pointer;">
@@ -338,12 +362,12 @@
             @Html.AntiForgeryToken()
             <div style="margin-bottom: 18px;">
                 <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Nombre</label>
-                <input type="text" name="name" id="editCategoriaNombre" required
+                <input type="text" name="Name" id="editCategoriaNombre" required
                        style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
             </div>
             <div style="margin-bottom: 18px;">
                 <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Descripción (opcional)</label>
-                <input type="text" name="description" id="editCategoriaDescripcion"
+                <input type="text" name="Description" id="editCategoriaDescripcion"
                        style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
             </div>
             <button type="submit" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; cursor: pointer;">

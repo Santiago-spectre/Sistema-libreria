@@ -4,57 +4,52 @@ using Microsoft.EntityFrameworkCore;
 using SistemaWebPapeleria.Data;
 using SistemaWebPapeleria.Models;
 using SistemaWebPapeleria.ViewModels;
+using SistemaWebPapeleria.Helpers;
 
 namespace SistemaWebPapeleria.Controllers
 {
     public class ProductController : Controller
     {
-        private readonly AppDbContext _appDbContext;
+        private readonly AppDbContext _context;
 
-        public ProductController(AppDbContext appDbContext)
+        public ProductController(AppDbContext context)
         {
-            _appDbContext = appDbContext;
+            _context = context;
         }
 
         // Muestra la lista de productos
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var products = await _appDbContext.Products.Include(p => p.Category).Include(p => p.Supplier).OrderBy(p => p.Name).ToListAsync();
+            var products = await _context.Products.Include(p => p.Category).Include(p => p.Supplier).OrderBy(p => p.Name).ToListAsync();
 
             // Tarjetas
-            ViewBag.TotalProducts = await _appDbContext.Products.CountAsync();
-            ViewBag.LowStock = await _appDbContext.Products.Where(p => !p.IsService && p.IsActive && p.Stock <= p.MinimumStock && p.Stock > 0).CountAsync();
-            ViewBag.OutOfStock = await _appDbContext.Products.Where(p => !p.IsService && p.IsActive && p.Stock == 0).CountAsync();
+            ViewBag.TotalProducts = await _context.Products.CountAsync();
+            ViewBag.LowStock = await _context.Products.Where(p => !p.IsService && p.IsActive && p.Stock <= p.MinimumStock && p.Stock > 0).CountAsync();
+            ViewBag.OutOfStock = await _context.Products.Where(p => !p.IsService && p.IsActive && p.Stock == 0).CountAsync();
 
             // Lista de categorias para la tarjeta
-            ViewBag.CategoriasList = await _appDbContext.Categories.OrderBy(c => c.Name).ToListAsync();
+            ViewBag.CategoriasList = await _context.Categories.OrderBy(c => c.Name).ToListAsync();
 
             // Agregar categorías y proveedores para el modal
-            ViewBag.Categories = new SelectList(await _appDbContext.Categories.ToListAsync(), "CategoryId", "Name");
-            ViewBag.Suppliers = new SelectList(await _appDbContext.Suppliers.Where(s => s.Status).ToListAsync(), "SupplierId", "Name");
+            ViewBag.Categories = new SelectList(await _context.Categories.ToListAsync(), "CategoryId", "Name");
+            ViewBag.Suppliers = new SelectList(await _context.Suppliers.Where(s => s.Status).ToListAsync(), "SupplierId", "Name");
 
             return View(products);
-        }
-
-        //muestra el formulario para agregar productos
-        [HttpGet]
-        public async Task<IActionResult> Create()       //nuevo
-        {
-            //Carga las categorias para el dropdow
-            ViewBag.Categories = new SelectList(await _appDbContext.Categories.ToListAsync(), "CategoryId", "Name");
-
-            //Carga los proveedores para el dropdown (opcional)
-            ViewBag.Suppliers = new SelectList(
-                await _appDbContext.Suppliers.Where(s => s.Status).ToListAsync(), "SupplierId", "Name");
-
-            return View();
         }
 
         //Procesa el formulario para agregar producto
         [HttpPost]
         public async Task<IActionResult> Create(ProductVM model)
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole != "Administrador") return Forbid();
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Revisa los datos del producto, hay campos inválidos.";
+                return RedirectToAction("Index");
+            }
+
             Product product = new Product()
             {
                 Name = model.Name,
@@ -69,47 +64,30 @@ namespace SistemaWebPapeleria.Controllers
                 SupplierId = model.IsService ? null : model.SupplierId,
             };
 
-            await _appDbContext.Products.AddAsync(product);
-            await _appDbContext.SaveChangesAsync();
+            await _context.Products.AddAsync(product);
+            await _context.SaveChangesAsync();
 
+            var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
+            await NotificarCRUD(userId, "Producto creado", $"Se creó el producto '{product.Name}'.");
+
+            TempData["Success"] = "Producto guardado correctamente.";
             return RedirectToAction("Index", "Product");
-        }
-
-        //Muestra el formulario para editar producto
-        [HttpGet]
-        public async Task<IActionResult> Edit(int id)
-        {
-            // Busca el producto por ID
-            var product = await _appDbContext.Products.FindAsync(id);
-            if (product == null) return RedirectToAction("Index");
-
-            ViewBag.Categories = new SelectList(await _appDbContext.Categories.ToListAsync(), "CategoryId", "Name", product.CategoryId);
-
-            ViewBag.Suppliers = new SelectList(await _appDbContext.Suppliers.Where(s => s.Status).ToListAsync(), "SupplierId", "Name", product.SupplierId);
-
-            //Mapea el producto al ViewModel
-            ProductVM model = new ProductVM()
-            {
-                Name = product.Name,
-                Description = product.Description,
-                SalePrice = product.SalePrice,
-                PurchasePrice = product.PurchasePrice,
-                Stock = product.Stock,
-                MinimumStock = product.MinimumStock,
-                IsService = product.IsService,
-                IsActive = product.IsActive,
-                CategoryId = product.CategoryId,
-                SupplierId = product.SupplierId,
-            };
-
-            return View(model);
         }
 
         //Procesa el formulario de edición
         [HttpPost]
         public async Task<IActionResult> Edit(int id, ProductVM model)
         {
-            var product = await _appDbContext.Products.FindAsync(id);
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole != "Administrador") return Forbid();
+
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Revisa los datos del producto, hay campos inválidos.";
+                return RedirectToAction("Index");
+            }
+
+            var product = await _context.Products.FindAsync(id);
 
             if (product == null) return RedirectToAction("Index");
 
@@ -125,24 +103,36 @@ namespace SistemaWebPapeleria.Controllers
             product.CategoryId = model.CategoryId;
             product.SupplierId = model.IsService ? null : model.SupplierId;
 
-            _appDbContext.Products.Update(product);
-            await _appDbContext.SaveChangesAsync();
+            _context.Products.Update(product);
+            await _context.SaveChangesAsync();
 
+            var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
+            await NotificarCRUD(userId, "Producto actualizado", $"Se actualizó el producto '{product.Name}'.");
+
+            TempData["Success"] = "Producto actualizado correctamente.";
             return RedirectToAction("Index", "Product");
         }
 
         [HttpPost]
         public async Task<IActionResult> ToggleStatus(int id)
         {
-            var product = await _appDbContext.Products.FindAsync(id);
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole != "Administrador") return Forbid();
+
+            var product = await _context.Products.FindAsync(id);
 
             if (product == null) return RedirectToAction("Index");
 
             //Cambia el estado activo/inactivo
             product.IsActive = !product.IsActive;
 
-            _appDbContext.Products.Update(product);
-            await _appDbContext.SaveChangesAsync();
+            _context.Products.Update(product);
+            await _context.SaveChangesAsync();
+
+            var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
+            string estado = product.IsActive ? "activado" : "desactivado";
+            await NotificarCRUD(userId, "Producto " + estado, $"Se {estado} el producto '{product.Name}'.");
+
 
             return RedirectToAction("Index", "Product");
         }
@@ -150,14 +140,40 @@ namespace SistemaWebPapeleria.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var product = await _appDbContext.Products.FindAsync(id);
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole != "Administrador") return Forbid();
+
+            var product = await _context.Products.FindAsync(id);
 
             if (product == null) return RedirectToAction("Index");
 
-            _appDbContext.Products.Remove(product);
-            await _appDbContext.SaveChangesAsync();
+            var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
+            string nombreProducto = product.Name;
+
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+
+            await NotificarCRUD(userId, "Producto eliminado", $"Se eliminó el producto '{nombreProducto}'.");
 
             return RedirectToAction("Index", "Product");
+        }
+
+        private async Task NotificarCRUD(int userId, string title, string message)
+        {
+            await NotificationHelper.CrearAsync(_context, userId, title, message, "Producto");
+
+            var usuario = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.UserId == userId);
+            if (usuario?.Role?.RoleName != "Administrador")
+            {
+                var admins = await _context.Users
+                    .Where(u => u.Role.RoleName == "Administrador" && u.UserId != userId)
+                    .ToListAsync();
+
+                foreach (var admin in admins)
+                {
+                    await NotificationHelper.CrearAsync(_context, admin.UserId, title, message, "Producto");
+                }
+            }
         }
     }
 }

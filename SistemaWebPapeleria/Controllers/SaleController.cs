@@ -10,22 +10,22 @@ namespace SistemaWebPapeleria.Controllers
 {
     public class SaleController : Controller
     {
-        private readonly AppDbContext _appDbContext;
+        private readonly AppDbContext _context;
 
-        public SaleController(AppDbContext appDbContext)
+        public SaleController(AppDbContext context)
         {
-            _appDbContext = appDbContext;
+            _context = context;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var sales = await _appDbContext.Sales
+            var sales = await _context.Sales
                 .Include(s => s.User)
                 .OrderByDescending(s => s.Date)
                 .ToListAsync();
 
-            var products = await _appDbContext.Products
+            var products = await _context.Products
                 .Where(p => p.IsActive)
                 .Select(p => new {
                     p.ProductId,
@@ -47,8 +47,8 @@ namespace SistemaWebPapeleria.Controllers
             var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
 
             var statsQuery = userRole == "Vendedor"
-                ? _appDbContext.Sales.Where(s => s.UserId == userId)
-                : _appDbContext.Sales;
+                ? _context.Sales.Where(s => s.UserId == userId)
+                : _context.Sales;
 
             ViewBag.TodaySales = await statsQuery
                 .Where(s => s.Date.Date == hoy)
@@ -63,7 +63,7 @@ namespace SistemaWebPapeleria.Controllers
                 .AverageAsync(s => (double?)s.Total) is double avg ? Math.Round(avg, 2) : 0;
 
             ViewBag.UserRole = userRole;
-            ViewBag.Usuarios = await _appDbContext.Users.Where(u => u.Status).ToListAsync();
+            ViewBag.Usuarios = await _context.Users.Where(u => u.Status).ToListAsync();
 
             return View(sales);
         }
@@ -71,12 +71,20 @@ namespace SistemaWebPapeleria.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] SaleRequestVM request)
         {
-            if (request == null || request.Items == null || request.Items.Count == 0)
-                return BadRequest();
+            if (request == null || request.Items ==null || request.Items.Count == 0)
+                return BadRequest(new { mensaje = "Debe agregar al menos un producto a la venta." });
+
+            if (!ModelState.IsValid)
+                return BadRequest(new { mensaje = "Revisa los datos de la venta, hay campos inválidos." });
+
+            decimal subtotalVenta = request.Items.Sum(i => i.UnitPrice * i.Quantity);
+            if (request.Discount > subtotalVenta)
+                return BadRequest(new { mensaje = "El descuento no puede ser mayor al total de la venta." });
 
             var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
 
-            decimal total = request.Items.Sum(i => i.UnitPrice * i.Quantity) - request.Discount;
+            decimal total = subtotalVenta - request.Discount;
+
             if (total < 0) total = 0;
 
             var sale = new Sale
@@ -99,7 +107,7 @@ namespace SistemaWebPapeleria.Controllers
             // Descontar stock
             foreach (var item in request.Items)
             {
-                var product = await _appDbContext.Products.FindAsync(item.ProductId);
+                var product = await _context.Products.FindAsync(item.ProductId);
                 if (product != null && !product.IsService)
                 {
                     if (item.Quantity > product.Stock)
@@ -109,8 +117,22 @@ namespace SistemaWebPapeleria.Controllers
                 }
             }
 
-            _appDbContext.Sales.Add(sale);
-            await _appDbContext.SaveChangesAsync();
+            _context.Sales.Add(sale);
+            await _context.SaveChangesAsync();
+
+            var vendedor = await _context.Users.FindAsync(userId);
+            string nombreVendedor = vendedor != null ? $"{vendedor.Name} {vendedor.LastName}" : "Usuario";
+
+            // Notificación para el vendedor que hizo la venta
+            await NotificationHelper.CrearAsync(_context, userId, "Venta Registrada", $"Registraste una venta por S/. {total:F2}.", "Venta");
+
+            // Notificación para todos los administradores
+            var admins = await _context.Users.Where(u => u.Role.RoleName == "Administrador" && u.UserId != userId).ToListAsync();
+
+            foreach (var admin in admins)
+            {
+                await NotificationHelper.CrearAsync(_context, admin.UserId, "Nueva Venta registrada", $"{nombreVendedor} registró una venta por S/ {total:F2}.", "Venta");
+            }
 
             return Ok();
         }
@@ -122,7 +144,7 @@ namespace SistemaWebPapeleria.Controllers
             if (userRole != "Administrador") return Forbid();
 
             var hoy = DateTime.Today;
-            var query = _appDbContext.Sales.AsQueryable();
+            var query = _context.Sales.AsQueryable();
             if (userId.HasValue) query = query.Where(s => s.UserId == userId.Value);
 
             var todaySales = await query.Where(s => s.Date.Date == hoy).CountAsync();

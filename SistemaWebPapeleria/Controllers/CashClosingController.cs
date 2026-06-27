@@ -65,6 +65,12 @@ namespace SistemaWebPapeleria.Controllers
         [HttpPost]
         public async Task<IActionResult> Open(decimal initialAmount)
         {
+            if (initialAmount < 0)
+            {
+                TempData["Error"] = "El monto inicial no puede ser negativo.";
+                return RedirectToAction("Index");
+            }
+
             var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
             var hoy = DateTime.Today;
 

@@ -334,7 +334,7 @@
         }
 
         function descargarReporte(mes, anio) {
-            alert('Descarga de reporte ' + mes + '/' + anio + ' — próximamente disponible.');
+            window.open('/Report/GenerarReporteMensual?mes=' + mes + '&anio=' + anio, '_blank');
         }
 
         async function verDetalle(saleId) {

@@ -1,20 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DinkToPdf;
+using DinkToPdf.Contracts;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaWebPapeleria.Data;
+using SistemaWebPapeleria.Helpers;
 using SistemaWebPapeleria.Models;
-using DinkToPdf;
-using DinkToPdf.Contracts;
+using SistemaWebPapeleria.Services;
+using SistemaWebPapeleria.ViewModels;
 
 namespace SistemaWebPapeleria.Controllers
 {
     public class ReportController : Controller
     {
-        private readonly AppDbContext _appDbContext;
+        private readonly AppDbContext _context;
         private readonly IConverter _converter;
-        public ReportController(AppDbContext appDbContext, IConverter converter)
+        private readonly ViewRenderService _viewRender;
+
+        public ReportController(AppDbContext context, IConverter converter, ViewRenderService viewRender)
         {
-            _appDbContext = appDbContext;
+            _context = context;
             _converter = converter;
+            _viewRender = viewRender;
         }
 
         [HttpGet]
@@ -27,7 +33,7 @@ namespace SistemaWebPapeleria.Controllers
             List<Sale> sales;
             if (userRole == "Vendedor")
             {
-                sales = await _appDbContext.Sales
+                sales = await _context.Sales
                     .Include(s => s.User)
                     .Where(s => s.UserId == userId)
                     .OrderByDescending(s => s.Date)
@@ -35,14 +41,14 @@ namespace SistemaWebPapeleria.Controllers
             }
             else
             {
-                sales = await _appDbContext.Sales
+                sales = await _context.Sales
                     .Include(s => s.User)
                     .OrderByDescending(s => s.Date)
                     .ToListAsync();
             }
 
             // Lista de vendedores para el filtro (solo admin)
-            ViewBag.Users = await _appDbContext.Users
+            ViewBag.Users = await _context.Users
                 .Where(u => u.Status)
                 .ToListAsync();
 
@@ -66,7 +72,7 @@ namespace SistemaWebPapeleria.Controllers
             // ── Reporte del día ──
             if (userRole == "Administrador")
             {
-                var usuarios = await _appDbContext.Users
+                var usuarios = await _context.Users
                     .Where(u => u.Status)
                     .ToListAsync();
 
@@ -79,7 +85,7 @@ namespace SistemaWebPapeleria.Controllers
                 }).ToList();
 
                 // Cajas cerradas hoy por usuario
-                var cajasCerradasHoy = await _appDbContext.CashClosings
+                var cajasCerradasHoy = await _context.CashClosings
                     .Where(c => c.Date.Date == hoy && (c.ClosingAmount != 0 || c.TotalSales != 0))
                     .Select(c => c.UserId)
                     .ToListAsync();
@@ -88,7 +94,7 @@ namespace SistemaWebPapeleria.Controllers
                 ViewBag.ReporteHoy = reporteHoy;
 
                 // Historial últimos 7 días por usuario
-                var cajasUltimos7 = await _appDbContext.CashClosings
+                var cajasUltimos7 = await _context.CashClosings
                     .Include(c => c.User)
                     .Where(c => c.Date.Date >= hoy.AddDays(-6) && c.Date.Date <= hoy && (c.ClosingAmount != 0 || c.TotalSales != 0))
                     .OrderByDescending(c => c.Date)
@@ -109,13 +115,13 @@ namespace SistemaWebPapeleria.Controllers
                     }
                 }.ToList();
 
-                var cajaCerradaHoy = await _appDbContext.CashClosings
+                var cajaCerradaHoy = await _context.CashClosings
                     .AnyAsync(c => c.UserId == userId && c.Date.Date == hoy && (c.ClosingAmount != 0 || c.TotalSales != 0));
 
                 ViewBag.CajaCerradaHoy = cajaCerradaHoy;
                 ViewBag.ReporteHoy = reporteHoy;
 
-                var cajasUltimos7Vendedor = await _appDbContext.CashClosings
+                var cajasUltimos7Vendedor = await _context.CashClosings
                     .Include(c => c.User)
                     .Where(c => c.UserId == userId && c.Date.Date >= hoy.AddDays(-6) && c.Date.Date <= hoy && (c.ClosingAmount != 0 || c.TotalSales != 0))
                     .OrderByDescending(c => c.Date)
@@ -130,8 +136,9 @@ namespace SistemaWebPapeleria.Controllers
         [HttpGet]
         public async Task<IActionResult> GenerarComprobante(int id)
         {
-            var sale = await _appDbContext.Sales
+            var sale = await _context.Sales
                 .Include(s => s.User)
+                .Include(s => s.Receipt)
                 .Include(s => s.SaleDetails)
                     .ThenInclude(sd => sd.Product)
                 .FirstOrDefaultAsync(s => s.SaleId == id);
@@ -139,77 +146,7 @@ namespace SistemaWebPapeleria.Controllers
             if (sale == null) return NotFound();
 
             // Construir el HTML del comprobante
-            var html = $@"
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset='utf-8' />
-                <style>
-                    * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-                    body {{ font-family: Arial, sans-serif; font-size: 12px; color: #000; padding: 20px; }}
-                    .header {{ text-align: center; margin-bottom: 15px; border-bottom: 2px solid #000; padding-bottom: 10px; }}
-                    .header h1 {{ font-size: 18px; font-weight: bold; text-transform: uppercase; }}
-                    .header p {{ font-size: 11px; color: #333; }}
-                    .comprobante-titulo {{ text-align: center; margin: 10px 0; padding: 8px; background: #1a1a2e; color: #ffffff; border-radius: 5px; }}
-                    .comprobante-titulo h2 {{ font-size: 14px; font-weight: bold; }}
-                    .datos {{ margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; padding: 10px; }}
-                    .datos p {{ margin-bottom: 4px; font-size: 11px; }}
-                    .datos span {{ font-weight: bold; }}
-                    table {{ width: 100%; border-collapse: collapse; margin: 10px 0; }}
-                    thead tr {{ background: #1a1a2e; color: #ffffff; }}
-                    thead th {{ padding: 8px; text-align: left; font-size: 11px; }}
-                    tbody tr {{ border-bottom: 1px solid #eee; }}
-                    tbody td {{ padding: 8px; font-size: 11px; }}
-                    .totales {{ text-align: right; margin-top: 10px; border-top: 2px solid #000; padding-top: 10px; }}
-                    .total-final {{ font-size: 15px; font-weight: bold; }}
-                    .footer {{ text-align: center; margin-top: 15px; border-top: 1px solid #ddd; padding-top: 10px; font-size: 10px; color: #666; }}
-                </style>
-            </head>
-            <body>
-                <div class='header'>
-                    <h1>Papelería Sonia</h1>
-                    <p>Jr. Ejemplo 123 - Cajamarca, Perú</p>
-                    <p>Tel: 987654321 | papeleriasonia@gmail.com</p>
-                </div>
-                <div class='comprobante-titulo'>
-                    <h2>BOLETA DE VENTA</h2>
-                    <p>B001-{sale.SaleId:D8}</p>
-                </div>
-                <div class='datos'>
-                    <p><span>Fecha de emisión:</span> {sale.Date:dd/MM/yyyy HH:mm}</p>
-                    <p><span>Vendedor:</span> {sale.User?.Name} {sale.User?.LastName}</p>
-                    <p><span>Método de pago:</span> {sale.PaymentMethod}</p>
-                    <p><span>Condición:</span> CONTADO</p>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Descripción</th>
-                            <th style='text-align:center'>Cant.</th>
-                            <th style='text-align:right'>P. Unit.</th>
-                            <th style='text-align:right'>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {string.Join("", sale.SaleDetails.Select(d => $@"
-                        <tr>
-                            <td>{d.Product?.Name}</td>
-                            <td style='text-align:center'>{d.Quantity}</td>
-                            <td style='text-align:right'>S/ {d.UnitPrice:0.00}</td>
-                            <td style='text-align:right'>S/ {d.Subtotal:0.00}</td>
-                        </tr>"))}
-                    </tbody>
-                </table>
-                <div class='totales'>
-                    {(sale.Discount > 0 ? $"<p>Descuento: S/ {sale.Discount:0.00}</p>" : "")}
-                    <p class='total-final'>TOTAL A PAGAR: S/ {sale.Total:0.00}</p>
-                </div>
-                <div class='footer'>
-                    <p>Representación impresa del comprobante de venta</p>
-                    <p>Gracias por su compra en Papelería Sonia</p>
-                </div>
-            </body>
-            </html>";
+            var html = await _viewRender.RenderToStringAsync("~/Views/PDF/Comprobante.cshtml", sale);
 
             var pdf = _converter.Convert(new HtmlToPdfDocument()
             {
@@ -226,13 +163,92 @@ namespace SistemaWebPapeleria.Controllers
                 }
             });
 
+            //Registrar comprobante en BD si no existe
+            if (sale.Receipt == null)
+            {
+                var receipt = new Receipt
+                {
+                    SaleId = sale.SaleId,
+                    IssueDate = DateTimeHelper.AhoraEnPeru(),
+                    Observations = ""
+                };
+                _context.Receipts.Add(receipt);
+                sale.ReceiptIssued = true;
+                await _context.SaveChangesAsync();
+            }
+
             return File(pdf, "application/pdf", $"Comprobante-{sale.SaleId}.pdf");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GenerarReporteMensual(int mes, int anio)
+        {
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
+
+            var query = _context.Sales
+                .Include(s => s.User)
+                .Where(s => s.Date.Month == mes && s.Date.Year == anio);
+
+            if (userRole == "Vendedor")
+                query = query.Where(s => s.UserId == userId);
+
+            var sales = await query.OrderBy(s => s.Date).ToListAsync();
+
+            var nombreMes = new System.Globalization.CultureInfo("es-PE").DateTimeFormat.GetMonthName(mes);
+
+            var reporteVM = new ReporteMensualVM
+            {
+                MonthName = char.ToUpper(nombreMes[0]) + nombreMes.Substring(1),
+                Year = anio,
+                Sales = sales
+            };
+
+            var html = await _viewRender.RenderToStringAsync("~/Views/PDF/ReporteMensual.cshtml", reporteVM);
+
+            var pdf = _converter.Convert(new HtmlToPdfDocument()
+            {
+                GlobalSettings = {
+                    ColorMode = ColorMode.Color,
+                    Orientation = Orientation.Portrait,
+                    PaperSize = PaperKind.A4,
+                },
+                Objects = {
+                    new ObjectSettings {
+                        HtmlContent = html,
+                        WebSettings = { DefaultEncoding = "utf-8" }
+                    }
+                }
+            });
+
+            // Notificar que se descargó el reporte
+            await NotificationHelper.CrearAsync(_context, userId,
+                "Reporte descargado",
+                $"Se descargó el reporte de ventas de {reporteVM.MonthName} {anio}.",
+                "Reporte");
+
+            if (userRole != "Administrador")
+            {
+                var admins = await _context.Users
+                    .Where(u => u.Role.RoleName == "Administrador" && u.UserId != userId)
+                    .ToListAsync();
+
+                foreach (var admin in admins)
+                {
+                    await NotificationHelper.CrearAsync(_context, admin.UserId,
+                        "Reporte descargado",
+                        $"Se descargó el reporte de ventas de {reporteVM.MonthName} {anio}.",
+                        "Reporte");
+                }
+            }
+
+            return File(pdf, "application/pdf", $"Reporte-{mes}-{anio}.pdf");
         }
 
         [HttpGet]
         public async Task<IActionResult> GetSaleDetail(int id)
         {
-            var sale = await _appDbContext.Sales
+            var sale = await _context.Sales
                 .Include(s => s.SaleDetails)
                     .ThenInclude(sd => sd.Product)
                 .FirstOrDefaultAsync(s => s.SaleId == id);

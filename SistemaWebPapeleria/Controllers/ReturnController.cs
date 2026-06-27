@@ -22,7 +22,12 @@ namespace SistemaWebPapeleria.Controllers
             if (request == null || request.Items == null || request.Items.Count == 0)
                 return BadRequest(new { mensaje = "No se enviaron productos para devolver." });
 
+            if (!ModelState.IsValid)
+                return BadRequest(new { mensaje = "Revisa los datos de la devolución, hay campos inválidos." });
+
             var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
+
+            var userRole = HttpContext.Session.GetString("UserRole");
 
             // Verificar que la venta existe
             var sale = await _context.Sales
@@ -31,6 +36,9 @@ namespace SistemaWebPapeleria.Controllers
 
             if (sale == null)
                 return NotFound(new { mensaje = "Venta no encontrada." });
+
+            if (userRole != "Administrador" && sale.UserId != userId)
+                return Forbid();
 
             // Crear la devolución
             var returnRecord = new Return
@@ -47,11 +55,17 @@ namespace SistemaWebPapeleria.Controllers
             {
                 // Verificar que la cantidad a devolver no supere la vendida
                 var saleDetail = sale.SaleDetails.FirstOrDefault(sd => sd.ProductId == item.ProductId);
-                if (saleDetail == null)
-                    return BadRequest(new { mensaje = $"El producto no pertenece a esta venta." });
 
-                if (item.Quantity > saleDetail.Quantity)
-                    return BadRequest(new { mensaje = $"La cantidad a devolver supera la cantidad vendida." });
+                if (saleDetail == null)
+                    return BadRequest(new { mensaje = "El producto no pertenece a esta venta." });
+
+                //suma de lo ya devuelto para este producto, en esta misma venta
+                int yaDevuelto = await _context.ReturnDetails
+                    .Where(rd => rd.ProductId == item.ProductId && rd.Return.SaleId == request.SaleId)
+                    .SumAsync(rd => rd.Quantity);
+
+                if (yaDevuelto + item.Quantity > saleDetail.Quantity)
+                    return BadRequest(new { mensaje = $"La cantidad a devolver supera la cantidad disponible par devolver (ya devuelto: {yaDevuelto} de {saleDetail.Quantity})." });
 
                 // Restituir stock
                 var product = await _context.Products.FindAsync(item.ProductId);

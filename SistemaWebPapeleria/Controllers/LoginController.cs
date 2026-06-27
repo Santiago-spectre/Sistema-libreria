@@ -9,11 +9,11 @@ namespace SistemaWebPapeleria.Controllers
 {
     public class LoginController : Controller
     {
-        private readonly AppDbContext _appDbContext;
+        private readonly AppDbContext _context;
         private readonly EmailService _emailService;
-        public LoginController(AppDbContext appDbContext, EmailService emailService)
+        public LoginController(AppDbContext context, EmailService emailService)
         {
-            _appDbContext = appDbContext;
+            _context = context;
             _emailService = emailService;
         }
 
@@ -26,7 +26,7 @@ namespace SistemaWebPapeleria.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginVM model)
         {
-            User? usuario_encontrado = await _appDbContext.Users
+            User? usuario_encontrado = await _context.Users
                 .Include(u => u.Role)
                 .Where(u => u.Email == model.Email)
                 .FirstOrDefaultAsync();
@@ -47,18 +47,6 @@ namespace SistemaWebPapeleria.Controllers
         }
 
         [HttpGet]
-        public IActionResult Administrator()
-        {
-            return View();
-        }
-
-        [HttpGet]
-        public IActionResult Seller()
-        {
-            return View();
-        }
-
-        [HttpGet]
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
@@ -75,7 +63,7 @@ namespace SistemaWebPapeleria.Controllers
         [HttpPost]
         public async Task<IActionResult> SendCode(string email)
         {
-            var user = await _appDbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null)
             {
                 TempData["ErrorRecover"] = "No existe ninguna cuenta con ese correo.";
@@ -157,7 +145,7 @@ namespace SistemaWebPapeleria.Controllers
                 return RedirectToAction("RecoverPassword");
             }
 
-            var user = await _appDbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null)
             {
                 TempData["ErrorRecover"] = "Usuario no encontrado.";
@@ -165,7 +153,7 @@ namespace SistemaWebPapeleria.Controllers
             }
 
             user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
-            await _appDbContext.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             // Limpiar sesión de recuperación
             HttpContext.Session.Remove("RecoverCode");

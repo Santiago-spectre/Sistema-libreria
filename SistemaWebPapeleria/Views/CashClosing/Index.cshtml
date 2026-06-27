@@ -4,7 +4,7 @@
     ViewData["Active"] = "CashClosing";
     var userRole = Context.Session.GetString("UserRole");
     var userId = int.Parse(Context.Session.GetString("UserId") ?? "0");
-    var cajaAbierta = Model.FirstOrDefault(c => c.UserId == userId && c.ClosingAmount == 0 && c.TotalSales == 0);
+    var cajaAbierta = Model.FirstOrDefault(c => c.UserId == userId && c.IsOpen);
 }
 
 <!-- TOPBAR -->
@@ -57,8 +57,8 @@
                         .Where(c => c.UserId == user.UserId)
                         .OrderByDescending(c => c.CashClosingId)
                         .FirstOrDefault();
-                    var tieneAbierta = cajaUsuarioHoy != null && cajaUsuarioHoy.ClosingAmount == 0 && cajaUsuarioHoy.TotalSales == 0;
-                    var tieneCerrada = cajaUsuarioHoy != null && (cajaUsuarioHoy.ClosingAmount != 0 || cajaUsuarioHoy.TotalSales != 0);
+                    var tieneAbierta = cajaUsuarioHoy != null && cajaUsuarioHoy.IsOpen;
+                    var tieneCerrada = cajaUsuarioHoy != null && !cajaUsuarioHoy.IsOpen;
 
                     <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
                         <td style="color: #ffffff; font-size: 13px; padding: 12px 15px;">@user.Name @user.LastName</td>
@@ -149,7 +149,7 @@
         <tbody>
             @foreach (var caja in Model)
             {
-                var estaAbierta = caja.ClosingAmount == 0 && caja.TotalSales == 0;
+                var estaAbierta = caja.IsOpen;
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
                     <td style="color: #ffffff; font-size: 13px; padding: 12px 15px;">@caja.User?.Name @caja.User?.LastName</td>
                     <td style="color: rgba(255,255,255,0.6); font-size: 13px; padding: 12px 15px;">@caja.Date.ToString("dd/MM/yyyy HH:mm")</td>
