@@ -37,6 +37,12 @@ namespace SistemaWebPapeleria.Controllers
                 return View();
             }
 
+            if (!usuario_encontrado.Status)
+            {
+                ViewData["Mensaje"] = "Tu cuenta está inactiva. Contacta al administrador.";
+                return View();
+            }
+
             HttpContext.Session.SetString("UserId", usuario_encontrado.UserId.ToString());
             HttpContext.Session.SetString("UserName", usuario_encontrado.Name + " " + usuario_encontrado.LastName);
             HttpContext.Session.SetString("UserRole", usuario_encontrado.Role.RoleName);
