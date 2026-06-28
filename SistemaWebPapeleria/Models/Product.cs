@@ -10,7 +10,7 @@ namespace SistemaWebPapeleria.Models
         [Required, MaxLength(150)]
         public string Name { get; set; }
         [MaxLength(300)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
         [Column(TypeName = "decimal(10,2)")]
         public decimal SalePrice { get; set; }          //precio al cliente
         [Column(TypeName ="decimal(10,2)")]

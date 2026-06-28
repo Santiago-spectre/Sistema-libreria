@@ -10,7 +10,7 @@ namespace SistemaWebPapeleria.ViewModels
 
 
         [StringLength(300, ErrorMessage = "La descripción no puede superar los 300 caracteres")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
 
         [Required(ErrorMessage = "El precio de venta es obligatorio")]
