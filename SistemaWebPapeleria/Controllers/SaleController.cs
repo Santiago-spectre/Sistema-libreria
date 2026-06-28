@@ -117,6 +117,9 @@ namespace SistemaWebPapeleria.Controllers
                         return BadRequest(new { mensaje = $"Stock insuficiente para '{product.Name}'. Stock disponible: {product.Stock}" });
 
                     product.Stock -= item.Quantity;
+
+                    if (product.Stock == 0)
+                        product.IsActive = false;
                 }
             }
 
