@@ -118,7 +118,7 @@
             </button>
         </div>
         
-        <form method="post" action="/User/Create" id="formCrearUsuario">
+        <form method="post" action="/User/Create" id="formCrearUsuario" onsubmit="return validarPasswordsCrear()">
             @Html.AntiForgeryToken()
 
             <!-- PASO 1: Correo -->
@@ -157,7 +157,17 @@
                 </div>
                 <div style="margin-bottom: 18px;">
                     <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Contraseña</label>
-                    <input type="password" name="Password" required placeholder="Contraseña" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                    <div style="position: relative;">
+                        <input type="password" name="Password" id="crearPassword" required placeholder="Contraseña" style="width: 100%; padding: 12px 45px 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                        <i class="bi bi-eye-fill" onclick="togglePassword('crearPassword', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.4); font-size: 16px; cursor: pointer;"></i>
+                    </div>
+                </div>
+                <div style="margin-bottom: 18px;">
+                    <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Repetir contraseña</label>
+                    <div style="position: relative;">
+                        <input type="password" id="crearConfirmPassword" required placeholder="Repite la contraseña" style="width: 100%; padding: 12px 45px 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                        <i class="bi bi-eye-fill" onclick="togglePassword('crearConfirmPassword', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.4); font-size: 16px; cursor: pointer;"></i>
+                    </div>
                 </div>
                 <div style="margin-bottom: 18px;">
                     <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Rol</label>
@@ -186,7 +196,7 @@
                 <i class="bi bi-x-lg"></i>
             </button>
         </div>
-        <form method="post" action="/User/Edit">
+        <form method="post" action="/User/Edit" onsubmit="return validarPasswordsEditar()">
             @Html.AntiForgeryToken()
             <input type="hidden" name="UserId" id="editUserId" />
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 18px;">
@@ -201,11 +211,35 @@
             </div>
             <div style="margin-bottom: 18px;">
                 <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Email</label>
-                <input type="email" name="Email" id="editEmail" required style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                <div style="display: flex; gap: 10px;">
+                    <input type="email" name="Email" id="editEmail" required oninput="onEditEmailChange()" style="flex: 1; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                    <button type="button" id="btnVerificarEditEmail" onclick="enviarCodigoEditarUsuario()" style="display: none; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 13px; font-weight: 600; padding: 0 18px; cursor: pointer;">
+                        Verificar
+                    </button>
+                </div>
+            </div>
+            <div id="pasoCodigoEditar" style="display: none; margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Código de verificación</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="inputCodigoEditar" maxlength="6" placeholder="6 dígitos" style="flex: 1; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                    <button type="button" onclick="confirmarCodigoEditarUsuario()" style="background: linear-gradient(135deg, #34d399, #10b981); border: none; border-radius: 10px; color: #ffffff; font-size: 13px; font-weight: 600; padding: 0 18px; cursor: pointer;">
+                        Confirmar
+                    </button>
+                </div>
             </div>
             <div style="margin-bottom: 18px;">
                 <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Nueva Contraseña <span style="color: rgba(255,255,255,0.3); font-size: 11px;">(dejar vacío para no cambiar)</span></label>
-                <input type="password" name="Password" placeholder="Nueva contraseña" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                <div style="position: relative;">
+                    <input type="password" name="Password" id="editPassword" placeholder="Nueva contraseña" style="width: 100%; padding: 12px 45px 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                    <i class="bi bi-eye-fill" onclick="togglePassword('editPassword', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.4); font-size: 16px; cursor: pointer;"></i>
+                </div>
+            </div>
+            <div style="margin-bottom: 18px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Repetir contraseña</label>
+                <div style="position: relative;">
+                    <input type="password" id="editConfirmPassword" placeholder="Repite la nueva contraseña" style="width: 100%; padding: 12px 45px 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                    <i class="bi bi-eye-fill" onclick="togglePassword('editConfirmPassword', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.4); font-size: 16px; cursor: pointer;"></i>
+                </div>
             </div>
             <div style="margin-bottom: 18px;">
                 <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Rol</label>
@@ -217,7 +251,7 @@
                     }
                 </select>
             </div>
-            <button type="submit" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; letter-spacing: 1px; cursor: pointer; margin-top: 10px;">
+            <button type="submit" id="btnGuardarEdicion" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; letter-spacing: 1px; cursor: pointer; margin-top: 10px;">
                 <i class="bi bi-check-lg"></i> Guardar Cambios
             </button>
         </form>
@@ -226,13 +260,98 @@
 
 @section Scripts {
     <script>
-        function abrirEditar(id, nombre, apellido, email, rolId) {
+        let correoOriginalEditar = '';
+        let codigoEditarVerificado = false;
+
+        function abrirEditar(id, nombre, apellido, email, rolId){
             document.getElementById('editUserId').value = id;
             document.getElementById('editName').value = nombre;
             document.getElementById('editLastName').value = apellido;
             document.getElementById('editEmail').value = email;
             document.getElementById('editRoleId').value = rolId;
             document.getElementById('modalEditar').style.display = 'flex';
+
+            correoOriginalEditar = email.toLowerCase();
+            codigoEditarVerificado = false;
+            document.getElementById('btnVerificarEditEmail').style.display = 'none';
+            document.getElementById('pasoCodigoEditar').style.display = 'none';
+            document.getElementById('btnGuardarEdicion').disabled = false;
+        }
+
+        function onEditEmailChange() {
+            const nuevoEmail = document.getElementById('editEmail').value.toLowerCase();
+            const btn = document.getElementById('btnVerificarEditEmail');
+
+            if (nuevoEmail !== correoOriginalEditar && nuevoEmail.includes('@@')) {
+                btn.style.display = 'inline-block';
+                codigoEditarVerificado = false;
+                document.getElementById('btnGuardarEdicion').disabled = true;
+                document.getElementById('pasoCodigoEditar').style.display = 'none';
+            } else {
+                btn.style.display = 'none';
+                document.getElementById('pasoCodigoEditar').style.display = 'none';
+                document.getElementById('btnGuardarEdicion').disabled = false;
+            }
+        }
+
+        async function enviarCodigoEditarUsuario() {
+            const email = document.getElementById('editEmail').value;
+            const userId = document.getElementById('editUserId').value;
+            const btn = document.getElementById('btnVerificarEditEmail');
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+
+            const formData = new URLSearchParams();
+            formData.append('email', email);
+            formData.append('userId', userId);
+
+            try {
+                const res = await fetch('/User/EnviarCodigoEdicion', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if (res.ok) {
+                    showToast(data.mensaje, 'success');
+                    document.getElementById('pasoCodigoEditar').style.display = 'block';
+                    btn.textContent = 'Reenviar código';
+                    btn.disabled = false;
+                } else {
+                    showToast(data.mensaje || 'Error al enviar el código.', 'error');
+                    btn.textContent = 'Verificar';
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                showToast('Error de conexión.', 'error');
+                btn.textContent = 'Verificar';
+                btn.disabled = false;
+            }
+        }
+
+        async function confirmarCodigoEditarUsuario() {
+            const code = document.getElementById('inputCodigoEditar').value;
+            if (!code) {
+                showToast('Ingresa el código recibido.', 'error');
+                return;
+            }
+
+            const formData = new URLSearchParams();
+            formData.append('code', code);
+
+            try {
+                const res = await fetch('/User/VerificarCodigoEdicion', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if (res.ok) {
+                    showToast(data.mensaje, 'success');
+                    codigoEditarVerificado = true;
+                    document.getElementById('btnGuardarEdicion').disabled = false;
+                    document.getElementById('pasoCodigoEditar').style.display = 'none';
+                    document.getElementById('btnVerificarEditEmail').style.display = 'none';
+                } else {
+                    showToast(data.mensaje || 'Código incorrecto.', 'error');
+                }
+            } catch (e) {
+                showToast('Error de conexión.', 'error');
+            }
         }
 
         let codigoCrearVerificado = false;
@@ -291,6 +410,7 @@
                     showToast(data.mensaje, 'success');
                     document.getElementById('pasoCodigo').style.display = 'none';
                     document.getElementById('pasoDatos').style.display = 'block';
+                    document.getElementById('btnVerificarCorreo').style.display = 'none';
                     codigoCrearVerificado = true;
                 } else {
                     showToast(data.mensaje || 'Código incorrecto.', 'error');
@@ -309,6 +429,26 @@
             document.getElementById('btnVerificarCorreo').textContent = 'Verificar';
             codigoCrearVerificado = false;
             document.getElementById('modalAgregar').style.display = 'none';
+        }
+
+        function validarPasswordsCrear() {
+            const pass = document.getElementById('crearPassword').value;
+            const confirm = document.getElementById('crearConfirmPassword').value;
+            if (pass !== confirm) {
+                showToast('Las contraseñas no coinciden.', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        function validarPasswordsEditar() {
+            const pass = document.getElementById('editPassword').value;
+            const confirm = document.getElementById('editConfirmPassword').value;
+            if (pass !== confirm) {
+                showToast('Las contraseñas no coinciden.', 'error');
+                return false;
+            }
+            return true;
         }
     </script>
 }

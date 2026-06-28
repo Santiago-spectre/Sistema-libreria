@@ -163,6 +163,20 @@ namespace SistemaWebPapeleria.Controllers
             var existing = await _context.Users.FindAsync(model.UserId);
             if (existing == null) return NotFound();
 
+            bool correoCambio = existing.Email.Trim().ToLower() != model.Email.Trim().ToLower();
+
+            if (correoCambio)
+            {
+                var correoVerificado = HttpContext.Session.GetString("EditUserEmailVerified");
+                var correoEnSesion = HttpContext.Session.GetString("EditUserEmail");
+
+                if (correoVerificado != "true" || correoEnSesion != model.Email.Trim().ToLower())
+                {
+                    TempData["Error"] = "Debes verificar el nuevo correo antes de guardar los cambios.";
+                    return RedirectToAction("Index");
+                }
+            }
+
             bool existeCorreo = await _context.Users.AnyAsync(u => u.UserId != model.UserId && u.Email.ToLower() == model.Email.Trim().ToLower());
             if (existeCorreo)
             {
@@ -182,6 +196,11 @@ namespace SistemaWebPapeleria.Controllers
 
             await NotificarCRUD(int.Parse(HttpContext.Session.GetString("UserId") ?? "0"),
                 "Usuario actualizado", $"Se actualizó el usuario '{existing.Name} {existing.LastName}'.");
+
+            HttpContext.Session.Remove("EditUserCode");
+            HttpContext.Session.Remove("EditUserEmail");
+            HttpContext.Session.Remove("EditUserCodeExpiry");
+            HttpContext.Session.Remove("EditUserEmailVerified");
 
             TempData["Success"] = "Usuario actualizado correctamente.";
             return RedirectToAction("Index");
@@ -224,6 +243,65 @@ namespace SistemaWebPapeleria.Controllers
                 "Usuario eliminado", $"Se eliminó el usuario '{nombreUsuario}'.");
 
             return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EnviarCodigoEdicion(string email, int userId)
+        {
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole != "Administrador") return Forbid();
+
+            if (string.IsNullOrWhiteSpace(email) || !email.Contains("@"))
+                return BadRequest(new { mensaje = "Ingresa un correo válido." });
+
+            bool existeCorreo = await _context.Users.AnyAsync(u => u.UserId != userId && u.Email.ToLower() == email.Trim().ToLower());
+            if (existeCorreo)
+                return BadRequest(new { mensaje = "Ya existe otro usuario con ese correo." });
+
+            var code = new Random().Next(100000, 999999).ToString();
+
+            HttpContext.Session.SetString("EditUserCode", code);
+            HttpContext.Session.SetString("EditUserEmail", email.Trim().ToLower());
+            HttpContext.Session.SetString("EditUserCodeExpiry", DateTime.Now.AddMinutes(10).ToString());
+            HttpContext.Session.Remove("EditUserEmailVerified");
+
+            var body = $@"
+                <div style='font-family:Segoe UI,sans-serif; max-width:500px; margin:auto; padding:30px; background:#1a1a2e; border-radius:16px; color:#fff;'>
+                    <h2 style='color:#6366f1; margin-bottom:10px;'>Papelería Sonia</h2>
+                    <p style='color:rgba(255,255,255,0.7);'>Se está actualizando el correo de una cuenta de usuario en el sistema.</p>
+                    <div style='background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); border-radius:12px; padding:20px; text-align:center; margin:20px 0;'>
+                        <p style='margin:0; color:rgba(255,255,255,0.5); font-size:13px;'>Tu código de verificación es:</p>
+                        <h1 style='color:#818cf8; letter-spacing:8px; margin:10px 0;'>{code}</h1>
+                        <p style='margin:0; color:rgba(255,255,255,0.4); font-size:12px;'>Válido por 10 minutos</p>
+                    </div>
+                    <p style='color:rgba(255,255,255,0.4); font-size:12px;'>Si no solicitaste esto, ignora este correo.</p>
+                </div>";
+
+            _emailService.SendEmail(email.Trim(), "Código de verificación - Papelería Sonia", body);
+
+            return Ok(new { mensaje = "Código enviado correctamente." });
+        }
+
+        [HttpPost]
+        public IActionResult VerificarCodigoEdicion(string code)
+        {
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole != "Administrador") return Forbid();
+
+            var savedCode = HttpContext.Session.GetString("EditUserCode");
+            var expiry = HttpContext.Session.GetString("EditUserCodeExpiry");
+
+            if (string.IsNullOrEmpty(savedCode) || string.IsNullOrEmpty(expiry))
+                return BadRequest(new { mensaje = "Solicita un código primero." });
+
+            if (DateTime.Parse(expiry) < DateTime.Now)
+                return BadRequest(new { mensaje = "El código ha expirado. Solicita uno nuevo." });
+
+            if (code != savedCode)
+                return BadRequest(new { mensaje = "Código incorrecto." });
+
+            HttpContext.Session.SetString("EditUserEmailVerified", "true");
+            return Ok(new { mensaje = "Correo verificado correctamente." });
         }
 
         private async Task NotificarCRUD(int userId, string title, string message)

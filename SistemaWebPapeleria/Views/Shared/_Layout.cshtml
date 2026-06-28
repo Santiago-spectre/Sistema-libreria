@@ -365,13 +365,37 @@
                     </div>
                     <div style="margin-bottom: 18px;">
                         <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Correo</label>
-                        <input type="email" id="perfilEmail" required style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                        <div style="display: flex; gap: 10px;">
+                            <input type="email" id="perfilEmail" required oninput="onPerfilEmailChange()" style="flex: 1; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                            <button type="button" id="btnVerificarPerfilEmail" onclick="enviarCodigoPerfil()" style="display: none; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 13px; font-weight: 600; padding: 0 18px; cursor: pointer;">
+                                Verificar
+                            </button>
+                        </div>
+                    </div>
+                    <div id="pasoCodigoPerfil" style="display: none; margin-bottom: 18px;">
+                        <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Código de verificación</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="inputCodigoPerfil" maxlength="6" placeholder="6 dígitos" style="flex: 1; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                            <button type="button" onclick="confirmarCodigoPerfil()" style="background: linear-gradient(135deg, #34d399, #10b981); border: none; border-radius: 10px; color: #ffffff; font-size: 13px; font-weight: 600; padding: 0 18px; cursor: pointer;">
+                                Confirmar
+                            </button>
+                        </div>
                     </div>
                     <div style="margin-bottom: 18px;">
                         <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Nueva contraseña (opcional)</label>
-                        <input type="password" id="perfilPassword" placeholder="Dejar en blanco para no cambiarla" style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                        <div style="position: relative;">
+                            <input type="password" id="perfilPassword" placeholder="Dejar en blanco para no cambiarla" style="width: 100%; padding: 12px 45px 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                            <i class="bi bi-eye-fill" onclick="togglePassword('perfilPassword', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.4); font-size: 16px; cursor: pointer;"></i>
+                        </div>
                     </div>
-                    <button type="submit" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; letter-spacing: 1px; cursor: pointer;">
+                    <div style="margin-bottom: 18px;">
+                        <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Repetir contraseña</label>
+                        <div style="position: relative;">
+                            <input type="password" id="perfilConfirmPassword" placeholder="Repite la nueva contraseña" style="width: 100%; padding: 12px 45px 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+                            <i class="bi bi-eye-fill" onclick="togglePassword('perfilConfirmPassword', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.4); font-size: 16px; cursor: pointer;"></i>
+                        </div>
+                    </div>
+                    <button type="submit" id="btnGuardarPerfil" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; letter-spacing: 1px; cursor: pointer;">
                         <i class="bi bi-check-lg"></i> Guardar Cambios
                     </button>
                 </form>
@@ -545,6 +569,8 @@
         });
         
         // Modal Mi Perfil
+        let correoOriginalPerfil = '';
+
         async function abrirModalPerfil() {
             document.getElementById('menuUsuarioDropdown').classList.remove('show');
             try {
@@ -554,14 +580,99 @@
                 document.getElementById('perfilApellido').value = data.lastName;
                 document.getElementById('perfilEmail').value = data.email;
                 document.getElementById('perfilPassword').value = '';
+                document.getElementById('perfilConfirmPassword').value = '';
                 document.getElementById('modalMiPerfil').style.display = 'flex';
+
+                correoOriginalPerfil = data.email.toLowerCase();
+                document.getElementById('btnVerificarPerfilEmail').style.display = 'none';
+                document.getElementById('pasoCodigoPerfil').style.display = 'none';
+                document.getElementById('btnGuardarPerfil').disabled = false;
             } catch (e) {
                 showToast('No se pudieron cargar tus datos.', 'error');
+            }
+        }
+
+        function onPerfilEmailChange() {
+            const nuevoEmail = document.getElementById('perfilEmail').value.toLowerCase();
+            const btn = document.getElementById('btnVerificarPerfilEmail');
+
+            if (nuevoEmail !== correoOriginalPerfil && nuevoEmail.includes('@@')) {
+                btn.style.display = 'inline-block';
+                document.getElementById('btnGuardarPerfil').disabled = true;
+                document.getElementById('pasoCodigoPerfil').style.display = 'none';
+            } else {
+                btn.style.display = 'none';
+                document.getElementById('pasoCodigoPerfil').style.display = 'none';
+                document.getElementById('btnGuardarPerfil').disabled = false;
+            }
+        }
+
+        async function enviarCodigoPerfil() {
+            const email = document.getElementById('perfilEmail').value;
+            const btn = document.getElementById('btnVerificarPerfilEmail');
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+
+            const formData = new URLSearchParams();
+            formData.append('email', email);
+
+            try {
+                const res = await fetch('/Profile/EnviarCodigoVerificacion', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if (res.ok) {
+                    showToast(data.mensaje, 'success');
+                    document.getElementById('pasoCodigoPerfil').style.display = 'block';
+                    btn.textContent = 'Reenviar código';
+                    btn.disabled = false;
+                } else {
+                    showToast(data.mensaje || 'Error al enviar el código.', 'error');
+                    btn.textContent = 'Verificar';
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                showToast('Error de conexión.', 'error');
+                btn.textContent = 'Verificar';
+                btn.disabled = false;
+            }
+        }
+
+        async function confirmarCodigoPerfil() {
+            const code = document.getElementById('inputCodigoPerfil').value;
+            if (!code) {
+                showToast('Ingresa el código recibido.', 'error');
+                return;
+            }
+
+            const formData = new URLSearchParams();
+            formData.append('code', code);
+
+            try {
+                const res = await fetch('/Profile/VerificarCodigo', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if (res.ok) {
+                    showToast(data.mensaje, 'success');
+                    document.getElementById('btnGuardarPerfil').disabled = false;
+                    document.getElementById('pasoCodigoPerfil').style.display = 'none';
+                    document.getElementById('btnVerificarPerfilEmail').style.display = 'none';
+                } else {
+                    showToast(data.mensaje || 'Código incorrecto.', 'error');
+                }
+            } catch (e) {
+                showToast('Error de conexión.', 'error');
             }
         }
         
         async function guardarPerfil(event) {
             event.preventDefault();
+            
+            const pass = document.getElementById('perfilPassword').value;
+            const confirm = document.getElementById('perfilConfirmPassword').value;
+            if (pass !== confirm) {
+                showToast('Las contraseñas no coinciden.', 'error');
+                return;
+            }
             
             const formData = new URLSearchParams();
             formData.append('Name', document.getElementById('perfilNombre').value);
@@ -582,6 +693,19 @@
                 }
             } catch (e) {
                 showToast('Error de conexión al guardar el perfil.', 'error');
+            }
+        }
+        
+        function togglePassword(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye-fill');
+                icon.classList.add('bi-eye-slash-fill');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash-fill');
+                icon.classList.add('bi-eye-fill');
             }
         }
     </script>
