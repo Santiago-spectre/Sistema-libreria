@@ -18,15 +18,14 @@ namespace SistemaWebPapeleria.ViewModels
         public decimal SalePrice { get; set; }      //precio de venta al cliente
 
 
-        [Range(0, 999999.99, ErrorMessage = "El precio de compra no puede ser negativo")]
-        public decimal PurchasePrice { get; set; }  //precio de compra al proveedor
+        public decimal? PurchasePrice { get; set; }  //precio de compra al proveedor
 
 
         [Range(0, int.MaxValue, ErrorMessage = "El stock no puede ser negativo")]
-        public int Stock { get; set; }
+        public int? Stock { get; set; }
 
         [Range(0, int.MaxValue, ErrorMessage = "El stock mínimo no puede ser negativo")]
-        public int MinimumStock { get; set; } = 5;
+        public int? MinimumStock { get; set; } = 5;
 
 
         public bool IsService { get; set; }         //Si es servicio o no(copias, impresiones)
@@ -46,7 +45,7 @@ namespace SistemaWebPapeleria.ViewModels
                     new[] { nameof(SupplierId) });
             }
 
-            if (!IsService && PurchasePrice <= 0)
+            if (!IsService && (PurchasePrice == null || PurchasePrice <= 0))
             {
                 yield return new ValidationResult(
                     "El precio de compra es obligatorio para productos fisicos",

@@ -44,9 +44,13 @@ namespace SistemaWebPapeleria.Controllers
         {
             var userRole = HttpContext.Session.GetString("UserRole");
             if (userRole != "Administrador") return Forbid();
+
             if (!ModelState.IsValid)
             {
-                TempData["Error"] = "Revisa los datos del producto, hay campos inválidos.";
+                var errores = string.Join(" | ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+                TempData["Error"] = errores;
                 return RedirectToAction("Index");
             }
 
@@ -55,9 +59,9 @@ namespace SistemaWebPapeleria.Controllers
                 Name = model.Name,
                 Description = model.Description ?? "",
                 SalePrice = model.SalePrice,
-                PurchasePrice = model.PurchasePrice,
-                Stock = model.Stock,
-                MinimumStock = model.MinimumStock,
+                Stock = model.IsService ? 0 : (model.Stock ?? 0),
+                MinimumStock = model.IsService ? 0 : (model.MinimumStock ?? 5),
+                PurchasePrice = model.IsService ? 0 : (model.PurchasePrice ?? 0),
                 IsService = model.IsService,
                 IsActive = true,
                 CategoryId = model.CategoryId,
@@ -72,6 +76,54 @@ namespace SistemaWebPapeleria.Controllers
 
             TempData["Success"] = "Producto guardado correctamente.";
             return RedirectToAction("Index", "Product");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateService(ProductVM model)
+        {
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole != "Administrador") return Forbid();
+
+            if (string.IsNullOrWhiteSpace(model.Name))
+            {
+                TempData["Error"] = "El nombre del servicio es obligatorio.";
+                return RedirectToAction("Index");
+            }
+
+            if (model.SalePrice <= 0)
+            {
+                TempData["Error"] = "El precio de venta debe ser mayor a 0.";
+                return RedirectToAction("Index");
+            }
+
+            if (model.CategoryId == 0)
+            {
+                TempData["Error"] = "Debe seleccionar una categoría.";
+                return RedirectToAction("Index");
+            }
+
+            var product = new Product()
+            {
+                Name = model.Name,
+                Description = model.Description ?? "",
+                SalePrice = model.SalePrice,
+                PurchasePrice = 0,
+                Stock = 0,
+                MinimumStock = 0,
+                IsService = true,
+                IsActive = true,
+                CategoryId = model.CategoryId,
+                SupplierId = null,
+            };
+
+            await _context.Products.AddAsync(product);
+            await _context.SaveChangesAsync();
+
+            var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
+            await NotificarCRUD(userId, "Servicio creado", $"Se creó el servicio '{product.Name}'.");
+
+            TempData["Success"] = "Servicio guardado correctamente.";
+            return RedirectToAction("Index");
         }
 
         //Procesa el formulario de edición
@@ -95,9 +147,9 @@ namespace SistemaWebPapeleria.Controllers
             product.Name = model.Name;
             product.Description = model.Description ?? "";
             product.SalePrice = model.SalePrice;
-            product.PurchasePrice = model.PurchasePrice;
-            product.Stock = model.Stock;
-            product.MinimumStock = model.MinimumStock;
+            product.PurchasePrice = model.IsService ? 0 : (model.PurchasePrice ?? 0);
+            product.Stock = model.IsService ? 0 : (model.Stock ?? 0);
+            product.MinimumStock = model.IsService ? 0 : (model.MinimumStock ?? 5);
             product.IsService = model.IsService;
             product.IsActive = model.IsActive;
             product.CategoryId = model.CategoryId;
