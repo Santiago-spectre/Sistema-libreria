@@ -200,6 +200,23 @@
             align-items: center;
             padding: 14px 16px;
             border-bottom: 1px solid rgba(255,255,255,0.07);
+            position: sticky;
+            top: 0;
+            background: #1a1a2e;
+            z-index: 10;
+        }
+        .bell-dropdown::-webkit-scrollbar {
+            width: 6px;
+        }
+        .bell-dropdown::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .bell-dropdown::-webkit-scrollbar-thumb {
+            background: rgba(99,102,241,0.4);
+            border-radius: 10px;
+        }
+        .bell-dropdown::-webkit-scrollbar-thumb:hover {
+            background: rgba(99,102,241,0.6);
         }
         .bell-dropdown-header span {
             color: #ffffff;
@@ -286,14 +303,18 @@
                 <h4>Bienvenido, <span style="color: #6366f1;">@HttpContextAccessor.HttpContext.Session.GetString("UserName")</span></h4>
             </div>
             <div class="topbar-derecha">
-                <div class="bell-wrapper" onclick="toggleNotificaciones()">
+                <div class="bell-wrapper" onclick="event.stopPropagation(); toggleNotificaciones()">
                     <i class="bi bi-bell-fill" style="color: rgba(255,255,255,0.6); font-size: 20px;"></i>
                     <span id="bellBadge" class="bell-badge" style="display: none;">0</span>
 
                     <div id="bellDropdown" class="bell-dropdown" onclick="event.stopPropagation()">
                         <div class="bell-dropdown-header">
                             <span>Notificaciones</span>
-                            <button onclick="marcarTodasLeidas()">Marcar todas como leídas</button>
+                            <div style="display: flex; gap: 12px;">
+                                <button onclick="marcarTodasLeidas()" title="Marcar todas como leídas"><i class="bi bi-check2-all"></i></button>
+                                <span> | </span>
+                                <button onclick="eliminarTodasNotificaciones()" title="Eliminar todas"><i class="bi bi-trash-fill"></i></button>
+                            </div>
                         </div>
                         <div id="notifList">
                             <p style="color: rgba(255,255,255,0.3); font-size: 12px; text-align: center; padding: 20px;">Cargando...</p>
@@ -301,7 +322,7 @@
                     </div>
                 </div>
 
-                <div class="bell-wrapper" onclick="toggleMenuUsuario()">
+                <div class="bell-wrapper" onclick="event.stopPropagation(); toggleMenuUsuario()">
                     <div class="topbar-usuario">
                         <i class="bi bi-person-circle" style="color: #6366f1; font-size: 24px;"></i>
                         <span>@HttpContextAccessor.HttpContext.Session.GetString("UserName")</span>
@@ -462,12 +483,16 @@
                     lista.innerHTML = '<p style="color: rgba(255,255,255,0.3); font-size: 12px; text-align: center; padding: 25px;">No tienes notificaciones</p>';
                     return;
                 }
-                
                 lista.innerHTML = data.notificaciones.map(n => `
-                    <div class="notif-item ${n.isRead ? '' : 'unread'}" onclick="marcarLeida(${n.notificationId}, this)">
-                        <p class="title">${n.title}</p>
-                        <p class="msg">${n.message}</p>
-                        <p class="time">${tiempoRelativo(n.createdAt)}</p>
+                    <div class="notif-item ${n.isRead ? '' : 'unread'}" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                        <div onclick="marcarLeida(${n.notificationId}, this)" style="flex: 1; cursor: pointer;">
+                            <p class="title">${n.title}</p>
+                            <p class="msg">${n.message}</p>
+                            <p class="time">${tiempoRelativo(n.createdAt)}</p>
+                        </div>
+                        <button onclick="eliminarNotificacion(${n.notificationId}, this)" style="background: none; border: none; color: rgba(255,255,255,0.3); cursor: pointer; font-size: 14px; padding: 4px; flex-shrink: 0;">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
                     </div>
                 `).join('');
             } catch (e) {
@@ -478,6 +503,17 @@
         async function marcarLeida(id, elemento) {
             elemento.classList.remove('unread');
             await fetch('/Notification/MarcarLeida?id=' + id, { method: 'POST' });
+            cargarNotificaciones();
+        }
+
+        async function eliminarNotificacion(id, boton) {
+            await fetch('/Notification/Eliminar?id=' + id, { method: 'POST' });
+            boton.closest('.notif-item').remove();
+            cargarNotificaciones();
+        }
+
+        async function eliminarTodasNotificaciones() {
+            await fetch('/Notification/EliminarTodas', { method: 'POST' });
             cargarNotificaciones();
         }
         

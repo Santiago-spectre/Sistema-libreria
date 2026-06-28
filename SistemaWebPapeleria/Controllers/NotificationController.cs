@@ -80,5 +80,37 @@ namespace SistemaWebPapeleria.Controllers
 
             return Ok();
         }
+
+        // Elimina una notificación de la base de datos
+        [HttpPost]
+        public async Task<IActionResult> Eliminar(int id)
+        {
+            var notification = await _context.Notifications.FindAsync(id);
+            if (notification == null) return NotFound();
+
+            _context.Notifications.Remove(notification);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        // Elimina todas las notificaciones visibles para el usuario actual
+        [HttpPost]
+        public async Task<IActionResult> EliminarTodas()
+        {
+            var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            var query = _context.Notifications.AsQueryable();
+
+            if (userRole != "Administrador")
+                query = query.Where(n => n.UserId == userId);
+
+            var notificaciones = await query.ToListAsync();
+            _context.Notifications.RemoveRange(notificaciones);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
     }
 }
