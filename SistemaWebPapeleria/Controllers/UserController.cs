@@ -234,6 +234,16 @@ namespace SistemaWebPapeleria.Controllers
             var user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound();
 
+            bool tieneHistorial = await _context.Sales.AnyAsync(s => s.UserId == id)
+                || await _context.CashClosings.AnyAsync(cc => cc.UserId == id)
+                || await _context.Returns.AnyAsync(r => r.UserId == id);
+
+            if (tieneHistorial)
+            {
+                TempData["Error"] = "Este usuario tiene historial (ventas, cierres de caja o devoluciones) y no se puede eliminar. Desactívalo en su lugar.";
+                return RedirectToAction("Index");
+            }
+
             string nombreUsuario = $"{user.Name} {user.LastName}";
 
             _context.Users.Remove(user);
@@ -242,6 +252,7 @@ namespace SistemaWebPapeleria.Controllers
             await NotificarCRUD(int.Parse(HttpContext.Session.GetString("UserId") ?? "0"),
                 "Usuario eliminado", $"Se eliminó el usuario '{nombreUsuario}'.");
 
+            TempData["Success"] = "Usuario eliminado correctamente.";
             return RedirectToAction("Index");
         }
 
