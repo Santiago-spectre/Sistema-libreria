@@ -141,6 +141,9 @@ namespace SistemaWebPapeleria.Controllers
                 .Include(s => s.Receipt)
                 .Include(s => s.SaleDetails)
                     .ThenInclude(sd => sd.Product)
+                .Include(s => s.Returns)
+                    .ThenInclude(r => r.ReturnDetails)
+                        .ThenInclude(rd => rd.Product)
                 .FirstOrDefaultAsync(s => s.SaleId == id);
 
             if (sale == null) return NotFound();

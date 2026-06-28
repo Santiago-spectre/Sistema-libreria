@@ -163,6 +163,53 @@
         <p class="total-final">TOTAL A PAGAR: S/ @Model.Total.ToString("0.00")</p>
     </div>
 
+    @{
+        var devoluciones = Model.Returns?.ToList() ?? new List<SistemaWebPapeleria.Models.Return>();
+        var totalDevuelto = devoluciones.SelectMany(r => r.ReturnDetails).Sum(rd => rd.Quantity * rd.UnitPrice);
+        var totalFinal = Model.Total - totalDevuelto;
+    }
+
+    @if (devoluciones.Any())
+    {
+        <div style="margin-top: 12px; border: 1px solid #f87171; border-radius: 5px; padding: 10px;">
+            <p style="font-weight: bold; color: #c0392b; margin-bottom: 6px;">DEVOLUCIONES</p>
+            <table>
+                <thead>
+                    <tr style="background: #c0392b;">
+                        <th>Producto devuelto</th>
+                        <th style="text-align: center;">Cant.</th>
+                        <th style="text-align: right;">P. Unit.</th>
+                        <th style="text-align: right;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var dev in devoluciones)
+                    {
+                        foreach (var rd in dev.ReturnDetails)
+                        {
+                            <tr>
+                                <td>@rd.Product?.Name</td>
+                                <td style="text-align: center;">@rd.Quantity</td>
+                                <td style="text-align: right;">S/ @rd.UnitPrice.ToString("0.00")</td>
+                                <td style="text-align: right;">- S/ @((rd.Quantity * rd.UnitPrice).ToString("0.00"))</td>
+                            </tr>
+                        }
+                        <tr>
+                            <td colspan="4" style="font-size: 10px; color: #666; padding-top: 2px;">
+                                Motivo: @dev.Reason — @dev.Date.ToString("dd/MM/yyyy HH:mm")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="totales" style="margin-top: 8px;">
+                <p>Total devuelto: - S/ @totalDevuelto.ToString("0.00")</p>
+                <p class="total-final">TOTAL NETO: S/ @totalFinal.ToString("0.00")</p>
+            </div>
+        </div>
+    }
+
     <!-- Footer -->
     <div class="footer">
         <p>Representación impresa del comprobante de venta</p>
