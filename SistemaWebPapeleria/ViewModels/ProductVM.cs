@@ -38,13 +38,6 @@ namespace SistemaWebPapeleria.ViewModels
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (!IsService && SupplierId == null)
-            {
-                yield return new ValidationResult(
-                    "Debe seleccionar un proveedor para productos fisicos",
-                    new[] { nameof(SupplierId) });
-            }
-
             if (!IsService && (PurchasePrice == null || PurchasePrice <= 0))
             {
                 yield return new ValidationResult(

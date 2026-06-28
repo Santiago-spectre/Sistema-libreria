@@ -10,7 +10,7 @@ namespace SistemaWebPapeleria.Models
         [Required, MaxLength(80)]
         public string Name { get; set; }
         [MaxLength(200)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         //relacion: una categoria tiene muchos productos
         public ICollection<Product> Products { get; set; }

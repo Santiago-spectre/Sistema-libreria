@@ -99,6 +99,13 @@ namespace SistemaWebPapeleria.Controllers
             var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
             string nombreCategoria = category.Name;
 
+            var tieneProductos = await _context.Products.AnyAsync(p => p.CategoryId == id);
+            if (tieneProductos)
+            {
+                TempData["Error"] = "No se puede eliminar esta categoría porque tiene productos asignados.";
+                return RedirectToAction("Index", "Product");
+            }
+
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
 

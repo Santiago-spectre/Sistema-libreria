@@ -117,6 +117,13 @@ namespace SistemaWebPapeleria.Controllers
             var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
             string nombreProveedor = supplier.Name;
 
+            var tieneProductos = await _context.Products.AnyAsync(p => p.SupplierId == id);
+            if (tieneProductos)
+            {
+                TempData["Error"] = "No se puede eliminar este proveedor porque tiene productos asignados.";
+                return RedirectToAction("Index");
+            }
+
             _context.Suppliers.Remove(supplier);
             await _context.SaveChangesAsync();
 

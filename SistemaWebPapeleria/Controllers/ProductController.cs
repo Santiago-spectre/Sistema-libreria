@@ -218,6 +218,13 @@ namespace SistemaWebPapeleria.Controllers
             var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
             string nombreProducto = product.Name;
 
+            var tieneVentas = await _context.SaleDetails.AnyAsync(sd => sd.ProductId == id);
+            if (tieneVentas)
+            {
+                TempData["Error"] = "No se puede eliminar este producto porque tiene ventas registradas. Puedes desactivarlo en su lugar.";
+                return RedirectToAction("Index");
+            }
+
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
 

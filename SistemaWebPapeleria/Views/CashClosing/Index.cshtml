@@ -183,9 +183,9 @@
                                         </button>
                                     </form>
                                 }
-                                <form method="post" action="/CashClosing/Delete/@caja.CashClosingId" style="margin: 0;">
+                                <form method="post" action="/CashClosing/Delete/@caja.CashClosingId" style="margin: 0;" id="formEliminarCaja_@caja.CashClosingId">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" onclick="return confirm('¿Seguro que quieres eliminar este registro?')" style="background: rgba(248,113,113,0.15); color: #f87171; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer;">
+                                    <button type="button" onclick="confirmarEliminar('formEliminarCaja_@caja.CashClosingId', '¿Eliminar este registro de caja?')" style="background: rgba(248,113,113,0.15); color: #f87171; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer;">
                                         <i class="bi bi-trash-fill"></i>
                                     </button>
                                 </form>

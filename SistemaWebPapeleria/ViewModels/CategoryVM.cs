@@ -10,6 +10,6 @@ namespace SistemaWebPapeleria.ViewModels
 
 
         [StringLength(200, ErrorMessage = "La descripción no puede superar los 200 caracteres")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
     }
 }

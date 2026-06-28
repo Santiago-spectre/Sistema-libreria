@@ -240,9 +240,9 @@
                                     style="background: rgba(99,102,241,0.15); color: #6366f1; border: none; border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer;">
                                 <i class="bi bi-pencil-fill"></i>
                             </button>
-                            <form method="post" action="/Category/Delete/@cat.CategoryId" style="margin: 0;" onsubmit="return confirm('¿Eliminar esta categoría?')">
+                            <form method="post" action="/Category/Delete/@cat.CategoryId" style="margin: 0;" id="formEliminarCat_@cat.CategoryId">
                                 @Html.AntiForgeryToken()
-                                <button type="submit"
+                                <button type="button" onclick="confirmarEliminar('formEliminarCat_@cat.CategoryId', '¿Eliminar esta categoría?')"
                                         style="background: rgba(248,113,113,0.15); color: #f87171; border: none; border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer;">
                                     <i class="bi bi-trash-fill"></i>
                                 </button>
@@ -491,27 +491,6 @@
     </div>
 </div>
 
-<!-- MODAL CONFIRMAR ELIMINAR -->
-<div id="modalConfirmarEliminar" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 5000; align-items: center; justify-content: center;">
-    <div style="background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 35px; width: 100%; max-width: 380px; text-align: center;">
-        <div style="background: rgba(248,113,113,0.15); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-            <i class="bi bi-trash-fill" style="color: #f87171; font-size: 26px;"></i>
-        </div>
-        <h5 style="color: #ffffff; font-weight: 700; font-size: 18px; margin-bottom: 10px;">¿Eliminar producto?</h5>
-        <p style="color: rgba(255,255,255,0.45); font-size: 14px; margin-bottom: 25px;">Esta acción no se puede deshacer.</p>
-        <div style="display: flex; gap: 10px;">
-            <button onclick="document.getElementById('modalConfirmarEliminar').style.display='none'"
-                    style="flex: 1; padding: 12px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; cursor: pointer;">
-                Cancelar
-            </button>
-            <button id="btnConfirmarEliminar"
-                    style="flex: 1; padding: 12px; background: linear-gradient(135deg, #ef4444, #f87171); border: none; border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; cursor: pointer;">
-                Eliminar
-            </button>
-        </div>
-    </div>
-</div>
-
 @section Scripts {
     <script>
         const searchInput = document.getElementById('searchInput');
@@ -651,14 +630,6 @@
             document.getElementById('formEditarProducto').action = '/Product/Edit/' + id;
             document.getElementById('modalEditarProducto').style.display = 'flex';
             document.getElementById('editPrecioCompraField').style.display = esServicio ? 'none' : 'block';
-        }
-        
-        function confirmarEliminar(formId) {
-            const modal = document.getElementById('modalConfirmarEliminar');
-            modal.style.display = 'flex';
-            document.getElementById('btnConfirmarEliminar').onclick = () => {
-                document.getElementById(formId).submit();
-            };
         }
     </script>
 }

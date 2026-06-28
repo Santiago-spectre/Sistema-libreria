@@ -88,9 +88,10 @@
                                     }
                                 </button>
                             </form>
-                            <form method="post" action="/Supplier/Delete/@supplier.SupplierId" style="margin: 0;" onsubmit="return confirm('¿Eliminar este proveedor?')">
+                            <form method="post" action="/Supplier/Delete/@supplier.SupplierId" style="margin: 0;" id="formEliminarSupplier_@supplier.SupplierId">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" style="background: rgba(248,113,113,0.15); color: #f87171; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer;">
+                                <button type="button" onclick="confirmarEliminar('formEliminarSupplier_@supplier.SupplierId', '¿Eliminar este proveedor?')"
+                                        style="background: rgba(248,113,113,0.15); color: #f87171; padding: 6px 12px; border-radius: 8px; font-size: 12px; border: none; cursor: pointer;">
                                     <i class="bi bi-trash-fill"></i>
                                 </button>
                             </form>
