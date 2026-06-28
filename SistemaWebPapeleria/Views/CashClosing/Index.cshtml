@@ -118,6 +118,10 @@
                                             <i class="bi bi-lock-fill"></i> Cerrar
                                         </button>
                                     </form>
+                                    <button onclick="abrirEditarMonto(@cajaUsuarioHoy.CashClosingId, @cajaUsuarioHoy.InitialAmount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture))"
+                                            style="background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.3); border-radius: 8px; color: #fbbf24; font-size: 12px; font-weight: 600; padding: 6px 14px; cursor: pointer;">
+                                        <i class="bi bi-pencil-fill"></i> Editar Monto
+                                    </button>
                                 }
                             </div>
                         </td>
@@ -222,3 +226,34 @@
         </form>
     </div>
 </div>
+
+<!-- MODAL EDITAR MONTO INICIAL -->
+<div id="modalEditarMonto" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 35px; width: 100%; max-width: 380px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h5 style="color: #ffffff; font-weight: 700; font-size: 18px; margin: 0;">Editar Monto Inicial</h5>
+            <button onclick="document.getElementById('modalEditarMonto').style.display='none'" style="background: none; border: none; color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer;">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <form method="post" action="/CashClosing/EditInitialAmount">
+            <input type="hidden" id="editCajaId" name="id" value="" />
+            <div style="margin-bottom: 20px;">
+                <label style="color: rgba(255,255,255,0.6); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px;">Nuevo Monto Inicial (S/)</label>
+                <input type="number" id="editMontoInicial" name="initialAmount" required step="0.01" min="0" placeholder="0.00"
+                       style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none;" />
+            </div>
+            <button type="submit" style="width: 100%; padding: 13px; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: 10px; color: #ffffff; font-size: 14px; font-weight: 600; letter-spacing: 1px; cursor: pointer;">
+                <i class="bi bi-check-lg"></i> Guardar Cambio
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function abrirEditarMonto(id, montoActual) {
+        document.getElementById('editCajaId').value = id;
+        document.getElementById('editMontoInicial').value = montoActual;
+        document.getElementById('modalEditarMonto').style.display = 'flex';
+    }
+</script>

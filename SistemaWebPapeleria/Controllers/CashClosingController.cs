@@ -123,6 +123,38 @@ namespace SistemaWebPapeleria.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> EditInitialAmount(int id, decimal initialAmount)
+        {
+            var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            var caja = await _context.CashClosings.FindAsync(id);
+            if (caja == null) return NotFound();
+
+            // Solo el dueño o el administrador pueden editar
+            if (caja.UserId != userId && userRole != "Administrador")
+                return Forbid();
+
+            // Solo se puede editar si la caja está abierta
+            if (!caja.IsOpen)
+            {
+                TempData["Error"] = "No se puede editar el monto de una caja cerrada.";
+                return RedirectToAction("Index");
+            }
+
+            if (initialAmount < 0)
+            {
+                TempData["Error"] = "El monto inicial no puede ser negativo.";
+                return RedirectToAction("Index");
+            }
+
+            caja.InitialAmount = initialAmount;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Close(int id)
         {
             var userId = int.Parse(HttpContext.Session.GetString("UserId") ?? "0");
