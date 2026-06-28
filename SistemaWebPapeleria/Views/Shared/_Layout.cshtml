@@ -454,15 +454,48 @@
 
     <script>
         // Fecha y hora en vivo
-        function actualizarFechaHora() {
-            const ahora = new Date();
-            const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-            const texto = ahora.toLocaleDateString('es-PE', opciones);
-            const el = document.getElementById('fechaHoraActual');
-            if (el) el.textContent = texto.charAt(0).toUpperCase() + texto.slice(1);
+        async function iniciarReloj() {
+            try {
+                const res = await fetch('https://timeapi.io/api/time/current/zone?timeZone=America%2FLima');
+                const data = await res.json();
+                
+                let base = new Date(data.dateTime); // hora real de Perú
+                const inicio = Date.now();
+                
+                function tick() {
+                    const ahora = new Date(base.getTime() + (Date.now() - inicio));
+                    const opciones = {
+                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit', second: '2-digit',
+                        timeZone: 'America/Lima', hour12: true
+                    };
+                    const texto = ahora.toLocaleString('es-PE', opciones);
+                    const el = document.getElementById('fechaHoraActual');
+                    if (el) el.textContent = texto.charAt(0).toUpperCase() + texto.slice(1);
+                }
+                
+                tick();
+                setInterval(tick, 1000);
+            
+            } catch {
+                // Si falla la API, cae al reloj local
+                function actualizarFechaHora() {
+                    const ahora = new Date();
+                    const opciones = {
+                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit', second: '2-digit',
+                        timeZone: 'America/Lima', hour12: true
+                    };
+                    const texto = ahora.toLocaleString('es-PE', opciones);
+                    const el = document.getElementById('fechaHoraActual');
+                    if (el) el.textContent = texto.charAt(0).toUpperCase() + texto.slice(1);
+                }
+                actualizarFechaHora();
+                setInterval(actualizarFechaHora, 1000);
+            }
         }
-        actualizarFechaHora();
-        setInterval(actualizarFechaHora, 60000);
+        iniciarReloj();
+
         // Notificaciones
         function toggleNotificaciones() {
             const dropdown = document.getElementById('bellDropdown');
