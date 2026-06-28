@@ -77,6 +77,9 @@ namespace SistemaWebPapeleria.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(new { mensaje = "Revisa los datos de la venta, hay campos inválidos." });
 
+            if (request.Items.Any(i => i.Quantity <= 0))
+                return BadRequest(new { mensaje = "La cantidad de cada producto debe ser mayor a cero." });
+
             decimal subtotalVenta = request.Items.Sum(i => i.UnitPrice * i.Quantity);
             if (request.Discount > subtotalVenta)
                 return BadRequest(new { mensaje = "El descuento no puede ser mayor al total de la venta." });

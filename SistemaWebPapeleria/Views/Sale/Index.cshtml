@@ -620,6 +620,18 @@
 
         async function registrarVenta() {
             if (carrito.length === 0) return;
+            
+            for (const item of carrito) {
+                const inputQty = document.querySelector(`input.cart-item-qty[onchange*="${item.productId}"]`);
+                if (inputQty) {
+                    const valorActual = parseInt(inputQty.value);
+                    if (!valorActual || valorActual <= 0) {
+                        showToast(`La cantidad de "${item.name}" debe ser mayor a cero.`, 'error');
+                        return;
+                    }
+                    item.cantidad = valorActual;
+                }
+            }
 
             const datos = {
                 paymentMethod: document.getElementById('metodoPago').value,
