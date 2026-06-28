@@ -45,6 +45,14 @@ namespace SistemaWebPapeleria.Controllers
             var userRole = HttpContext.Session.GetString("UserRole");
             if (userRole != "Administrador") return Forbid();
 
+            var existe = await _context.Products
+                .AnyAsync(p => p.Name.ToLower() == model.Name.Trim().ToLower());
+            if (existe)
+            {
+                TempData["Error"] = "Ya existe un producto con ese nombre.";
+                return RedirectToAction("Index");
+            }
+
             if (!ModelState.IsValid)
             {
                 var errores = string.Join(" | ", ModelState.Values
@@ -83,6 +91,14 @@ namespace SistemaWebPapeleria.Controllers
         {
             var userRole = HttpContext.Session.GetString("UserRole");
             if (userRole != "Administrador") return Forbid();
+
+            var existe = await _context.Products
+                .AnyAsync(p => p.Name.ToLower() == model.Name.Trim().ToLower());
+            if (existe)
+            {
+                TempData["Error"] = "Ya existe un servicio con ese nombre.";
+                return RedirectToAction("Index");
+            }
 
             if (string.IsNullOrWhiteSpace(model.Name))
             {
