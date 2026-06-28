@@ -14,7 +14,7 @@ namespace SistemaWebPapeleria.Models
         [MaxLength(200)]
         public string Address { get; set; }         //Direccion
         [MaxLength(200)]
-        public string Description { get; set; }    
+        public string? Description { get; set; }    
         public bool Status { get; set; }    //estado: activo o desactivo
 
         // Relación: un proveedor puede dar muchos productos
