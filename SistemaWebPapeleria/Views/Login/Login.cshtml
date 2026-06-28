@@ -114,8 +114,8 @@
             <div class="mb-3">
                 <label>Contraseña</label>
                 <div style="position: relative;">
-                    <input class="form-control" type="password" placeholder="Ingrese su contraseña" required asp-for="Password" style="padding-right: 45px;" />
-                    <i class="bi bi-key-fill" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 16px;"></i>
+                    <input class="form-control" type="password" id="loginPassword" placeholder="Ingrese su contraseña" required asp-for="Password" style="padding-right: 45px;" />
+                    <i id="toggleLoginPassword" class="bi bi-eye-fill" onclick="toggleLoginPasswordVisibility()" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.4); font-size: 16px; cursor: pointer;"></i>
                 </div>
             </div>
             <div class="d-grid mb-3">
@@ -139,5 +139,21 @@
     </div>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function toggleLoginPasswordVisibility() {
+            const input = document.getElementById('loginPassword');
+            const icon = document.getElementById('toggleLoginPassword');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye-fill');
+                icon.classList.add('bi-eye-slash-fill');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash-fill');
+                icon.classList.add('bi-eye-fill');
+            }
+        }
+    </script>
 </body>
 </html>
